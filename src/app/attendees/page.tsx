@@ -162,7 +162,7 @@ export default function AttendeesPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)]">
-      <Navbar />
+      <Navbar onOpenGeneratePass={() => setIsAddModalOpen(true)} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
         
@@ -183,10 +183,10 @@ export default function AttendeesPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
             >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>Add Delegate</span>
+              <Ticket className="w-3.5 h-3.5" />
+              <span>Generate E-Pass</span>
             </button>
 
             <button

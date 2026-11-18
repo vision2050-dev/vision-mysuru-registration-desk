@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   Check,
   Building,
+  Ticket,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -145,6 +146,7 @@ export default function RegistrationDeskPage() {
         deskName={deskName}
         onDeskNameChange={setDeskName}
         onResetData={handleResetData}
+        onOpenGeneratePass={() => setIsAddModalOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
@@ -167,10 +169,10 @@ export default function RegistrationDeskPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
             >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>Walk-In</span>
+              <Ticket className="w-3.5 h-3.5" />
+              <span>Generate E-Pass</span>
             </button>
 
             <button
@@ -271,7 +273,7 @@ export default function RegistrationDeskPage() {
               <form onSubmit={handleManualCheckIn} className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="e.g. VM2050-7821-MYS"
+                  placeholder="e.g. VM2050-XXXX-MYS"
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value)}
                   className="flex-1 px-3 py-1.5 text-xs font-mono uppercase rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[#8f1b1b]"

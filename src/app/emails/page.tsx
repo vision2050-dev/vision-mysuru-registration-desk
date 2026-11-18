@@ -215,6 +215,11 @@ export default function EmailsPage() {
               </span>
 
               <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
+                {attendees.length === 0 && (
+                  <div className="p-6 text-center text-xs text-[var(--text-subtle)]">
+                    No delegates registered yet. Generate a pass or bulk import attendees to send invitation passes.
+                  </div>
+                )}
                 {attendees.map((att) => {
                   const isSelected = att.id === selectedAttendee?.id;
                   const isSent = att.emailStatus === 'sent';

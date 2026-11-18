@@ -3,18 +3,20 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { QrCode, Users, Mail, BarChart3, Ticket, RotateCcw, Check, Sparkles } from 'lucide-react';
+import { QrCode, Users, Mail, BarChart3, Ticket, Check, Sparkles } from 'lucide-react';
 
 interface NavbarProps {
   deskName?: string;
   onDeskNameChange?: (name: string) => void;
   onResetData?: () => void;
+  onOpenGeneratePass?: () => void;
 }
 
 export default function Navbar({
   deskName = 'Desk #1 (Auditorium)',
   onDeskNameChange,
   onResetData,
+  onOpenGeneratePass,
 }: NavbarProps) {
   const pathname = usePathname();
   const [isEditingDesk, setIsEditingDesk] = useState(false);
@@ -118,25 +120,24 @@ export default function Navbar({
               )}
             </div>
 
-            {/* Clean Sample Pass Link */}
-            <Link
-              href="/pass/VM2050-7821-MYS"
-              target="_blank"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-[var(--text-muted)] hover:text-[#b07c12] hover:bg-[#b07c12]/8 border border-[var(--border)] transition-colors"
-            >
-              <Ticket className="w-3.5 h-3.5 text-[#b07c12]" />
-              <span className="hidden sm:inline">Sample Pass</span>
-            </Link>
-
-            {/* Reset Demo State Button */}
-            {onResetData && (
+            {/* Generate Pass Button */}
+            {onOpenGeneratePass ? (
               <button
-                onClick={onResetData}
-                title="Reset sample data"
-                className="p-1.5 text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] rounded-md transition-colors"
+                type="button"
+                onClick={onOpenGeneratePass}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-[#8f1b1b] hover:bg-[#781616] text-white shadow-2xs transition-colors"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <Ticket className="w-3.5 h-3.5" />
+                <span>+ Generate Pass</span>
               </button>
+            ) : (
+              <Link
+                href="/?generate=true"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-[#8f1b1b] hover:bg-[#781616] text-white shadow-2xs transition-colors"
+              >
+                <Ticket className="w-3.5 h-3.5" />
+                <span>+ Generate Pass</span>
+              </Link>
             )}
           </div>
 
