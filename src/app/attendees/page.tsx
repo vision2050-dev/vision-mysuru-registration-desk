@@ -181,13 +181,13 @@ export default function AttendeesPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsAddModalOpen(true)}
+            <Link
+              href="/generate"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
             >
               <Ticket className="w-3.5 h-3.5" />
-              <span>Generate E-Pass</span>
-            </button>
+              <span>+ Generate E-Pass</span>
+            </Link>
 
             <button
               onClick={() => setIsBulkModalOpen(true)}
@@ -289,8 +289,32 @@ export default function AttendeesPage() {
                   </tr>
                 ) : attendees.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-10 text-center text-[var(--text-subtle)]">
-                      No delegates found matching filter criteria.
+                    <td colSpan={8} className="py-12 text-center">
+                      <div className="max-w-md mx-auto flex flex-col items-center justify-center p-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#8f1b1b]/10 text-[#8f1b1b] flex items-center justify-center mb-3">
+                          <Ticket className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-sm font-bold text-[var(--text)]">No Attendees Registered Yet</h4>
+                        <p className="text-xs text-[var(--text-muted)] mt-1 mb-4 text-center max-w-sm">
+                          The attendee registry is ready for real event delegates. Create an individual student e-pass or import your attendee list via CSV.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href="/generate"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
+                          >
+                            <Ticket className="w-3.5 h-3.5" />
+                            <span>+ Generate Student E-Pass</span>
+                          </Link>
+                          <button
+                            onClick={() => setIsBulkModalOpen(true)}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text)] text-xs font-medium border border-[var(--border)] transition-colors"
+                          >
+                            <FileSpreadsheet className="w-3.5 h-3.5 text-[#b07c12]" />
+                            <span>Import CSV</span>
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ) : (

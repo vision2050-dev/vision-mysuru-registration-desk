@@ -24,6 +24,7 @@ export default function Navbar({
 
   const navItems = [
     { label: 'Scanner Desk', href: '/', icon: QrCode },
+    { label: 'Generate Pass', href: '/generate', icon: Ticket },
     { label: 'Attendees', href: '/attendees', icon: Users },
     { label: 'E-Pass Emails', href: '/emails', icon: Mail },
     { label: 'Analytics', href: '/analytics', icon: BarChart3 },
@@ -132,7 +133,7 @@ export default function Navbar({
               </button>
             ) : (
               <Link
-                href="/?generate=true"
+                href="/generate"
                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-[#8f1b1b] hover:bg-[#781616] text-white shadow-2xs transition-colors"
               >
                 <Ticket className="w-3.5 h-3.5" />

@@ -16,7 +16,9 @@ import {
   RefreshCw,
   ExternalLink,
   Users,
+  Ticket,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function EmailsPage() {
   const [attendees, setAttendees] = useState<StudentAttendee[]>([]);
@@ -216,8 +218,15 @@ export default function EmailsPage() {
 
               <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
                 {attendees.length === 0 && (
-                  <div className="p-6 text-center text-xs text-[var(--text-subtle)]">
-                    No delegates registered yet. Generate a pass or bulk import attendees to send invitation passes.
+                  <div className="p-6 text-center text-xs text-[var(--text-subtle)] space-y-3">
+                    <p>No delegates registered yet.</p>
+                    <Link
+                      href="/generate"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>+ Generate E-Pass</span>
+                    </Link>
                   </div>
                 )}
                 {attendees.map((att) => {

@@ -167,13 +167,13 @@ export default function RegistrationDeskPage() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsAddModalOpen(true)}
+            <Link
+              href="/generate"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
             >
               <Ticket className="w-3.5 h-3.5" />
-              <span>Generate E-Pass</span>
-            </button>
+              <span>+ Generate E-Pass</span>
+            </Link>
 
             <button
               onClick={() => setIsBulkModalOpen(true)}
@@ -254,6 +254,43 @@ export default function RegistrationDeskPage() {
 
           </div>
         </div>
+
+        {/* Welcome / Empty-State Pass Generation Banner */}
+        {stats?.totalRegistered === 0 && (
+          <div className="bg-gradient-to-r from-[#8f1b1b]/10 via-[#b07c12]/10 to-[var(--surface)] border border-[#8f1b1b]/25 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-[#8f1b1b] text-white flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                <Ticket className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[var(--text)] flex items-center gap-2">
+                  <span>Start by Issuing Delegate Passes</span>
+                  <span className="text-[10px] bg-[#8f1b1b] text-white px-2 py-0.5 rounded-full font-semibold">Ready</span>
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  The attendee database is clean. Generate verified digital QR passes individually or bulk-import student cohorts to begin admissions.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/generate"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
+              >
+                <Ticket className="w-3.5 h-3.5" />
+                <span>+ Generate Pass</span>
+              </Link>
+              <button
+                onClick={() => setIsBulkModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text)] text-xs font-medium border border-[var(--border)] transition-colors"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-[#b07c12]" />
+                <span>Import CSV</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Workstation Grid: Scanner & Unified Lookup */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
