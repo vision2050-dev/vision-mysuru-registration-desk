@@ -188,7 +188,42 @@ export async function sendEPassEmail(
 
   const htmlContent = buildInvitationEmailHtml(attendee, qrDataUrl, passUrl);
 
-  // 1. Check if SMTP credentials exist (User's Gmail or institutional relay)
+  // 1. Check if Resend API key exists (Recommended for Vercel)
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (resendApiKey) {
+    try {
+      const fromEmail = process.env.EMAIL_FROM || 'Vision Mysuru 2050 <onboarding@resend.dev>';
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: [attendee.email],
+          subject: `Your Official E-Pass: Vision Mysuru 2050 Summit (${attendee.passCode})`,
+          html: htmlContent,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        return {
+          success: true,
+          mode: 'resend',
+          messageId: data.id,
+          previewHtml: htmlContent,
+        };
+      } else {
+        console.warn('Resend API returned error:', data);
+      }
+    } catch (err: any) {
+      console.error('Resend delivery failed:', err);
+    }
+  }
+
+  // 2. Check if SMTP credentials exist (User's Gmail or institutional relay)
   const emailUser = process.env.EMAIL_USER;
   const emailPass = process.env.EMAIL_PASS;
 
