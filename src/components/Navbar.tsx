@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { QrCode, Users, Mail, BarChart3, Ticket, Check, Sparkles } from 'lucide-react';
+import { QrCode, Users, Mail, BarChart3, Ticket, Check, Sparkles, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   deskName?: string;
@@ -34,6 +34,15 @@ export default function Navbar({
     e.preventDefault();
     if (onDeskNameChange) onDeskNameChange(currentDesk);
     setIsEditingDesk(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore
+    }
+    window.location.href = '/login';
   };
 
   return (
@@ -140,6 +149,17 @@ export default function Navbar({
                 <span>+ Generate Pass</span>
               </Link>
             )}
+
+            {/* Sign Out Button */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sign out of registration desk"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-[var(--text-subtle)] hover:text-red-700 hover:bg-red-50 border border-[var(--border)] hover:border-red-200 transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5 text-neutral-400 group-hover:text-red-600" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </div>
 
         </div>
