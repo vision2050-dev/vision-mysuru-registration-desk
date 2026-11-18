@@ -3,8 +3,11 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16.4-black?logo=next.js)](https://nextjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Vercel Ready](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel)](https://vercel.com/)
+[![Vercel Live](https://img.shields.io/badge/Vercel-Live%20Platform-000000?logo=vercel)](https://vision-mysuru-desk.vercel.app)
 [![Vision Mysuru 2050](https://img.shields.io/badge/Branding-visionmysuru2050.in-8f1b1b)](https://visionmysuru2050.in)
+
+> **🚀 Live Vercel Deployment:** [https://vision-mysuru-desk.vercel.app](https://vision-mysuru-desk.vercel.app)  
+> **🎫 Sample E-Pass:** [https://vision-mysuru-desk.vercel.app/pass/VM2050-7821-MYS](https://vision-mysuru-desk.vercel.app/pass/VM2050-7821-MYS)
 
 A simple, modern, and production-ready **Registration Desk Platform** engineered for the marketing and delegate check-in operations of **Vision Mysuru 2050** (spearheaded by the SDM Institute for Management Development — SDMIMD, in partnership with CII Young Indians and Mysuru Grahakara Parishat).
 
