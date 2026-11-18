@@ -2,82 +2,77 @@
 
 @layer base {
   :root {
-    --bg: #fffefc;
+    --bg: #fcfbf9;
     --surface: #ffffff;
-    --surface-2: #f4efe6;
-    --text: #1f140c;
-    --text-muted: #6b5b4d;
-    --border: #1f140c1f;
+    --surface-2: #f7f4ee;
+    --surface-3: #f0ebe1;
+    --text: #19140f;
+    --text-muted: #73675a;
+    --text-subtle: #9c9082;
+    --border: rgba(25, 20, 15, 0.08);
+    --border-hover: rgba(25, 20, 15, 0.16);
     --accent: #b07c12;
     --accent-hover: #96670a;
-    --accent-soft: #b07c1224;
+    --accent-soft: rgba(176, 124, 18, 0.08);
     --primary: #8f1b1b;
-    --primary-hover: #a12626;
-    --primary-soft: #8f1b1b20;
-    --success: #15803d;
-    --success-soft: #dcfce7;
-    --warning: #b45309;
-    --warning-soft: #fef3c7;
-    --danger: #b91c1c;
-    --danger-soft: #fee2e2;
+    --primary-hover: #781616;
+    --primary-soft: rgba(143, 27, 27, 0.08);
+    --success: #166534;
+    --success-soft: #f0fdf4;
+    --warning: #92400e;
+    --warning-soft: #fefce8;
+    --danger: #991b1b;
+    --danger-soft: #fef2f2;
   }
 
   .dark {
-    --bg: #0b0c0e;
-    --surface: #14161b;
-    --surface-2: #1e2027;
-    --text: #f5f3ee;
-    --text-muted: #a89f91;
-    --border: #f5f3ee1f;
+    --bg: #0c0d0e;
+    --surface: #141618;
+    --surface-2: #1b1e22;
+    --surface-3: #23272d;
+    --text: #f7f6f2;
+    --text-muted: #9e978c;
+    --text-subtle: #6e675c;
+    --border: rgba(247, 246, 242, 0.08);
+    --border-hover: rgba(247, 246, 242, 0.16);
     --accent: #e5a93c;
     --accent-hover: #f3be58;
-    --accent-soft: #e5a93c2b;
+    --accent-soft: rgba(229, 169, 60, 0.12);
     --primary: #b82c2c;
     --primary-hover: #cf3737;
-    --primary-soft: #b82c2c33;
+    --primary-soft: rgba(184, 44, 44, 0.15);
     --success: #22c55e;
-    --success-soft: #14532d40;
+    --success-soft: rgba(34, 197, 94, 0.12);
     --warning: #f59e0b;
-    --warning-soft: #78350f40;
+    --warning-soft: rgba(245, 158, 11, 0.12);
     --danger: #ef4444;
-    --danger-soft: #7f1d1d40;
+    --danger-soft: rgba(239, 68, 68, 0.12);
   }
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, -apple-system, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbars */
+/* Subtle clean scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--surface-2);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--accent-soft);
+  background: rgba(25, 20, 15, 0.15);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
-
-/* Subtle holographic pulse for e-pass */
-@keyframes holographicShine {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.holo-gradient {
-  background: linear-gradient(135deg, rgba(176,124,18,0.15) 0%, rgba(143,27,27,0.1) 50%, rgba(229,169,60,0.2) 100%);
-  background-size: 200% 200%;
-  animation: holographicShine 6s ease infinite;
+  background: rgba(25, 20, 15, 0.25);
 }
 
 /* Print Styles for E-Pass Ticket Badge */
@@ -94,7 +89,7 @@ body {
   }
   .print-pass-container {
     box-shadow: none !important;
-    border: 2px solid #000000 !important;
+    border: 1px solid #000000 !important;
     page-break-inside: avoid;
   }
 }

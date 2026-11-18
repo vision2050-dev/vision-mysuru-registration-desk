@@ -18,24 +18,23 @@ export default function EPassCard({ attendee, qrDataUrl, event }: EPassCardProps
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-sm mx-auto">
       {/* Printable E-Pass Badge Container */}
-      <div className="print-pass-container relative bg-white rounded-3xl shadow-xl border-2 border-[#b07c12]/40 overflow-hidden text-[#1f140c]">
+      <div className="print-pass-container relative bg-white rounded-2xl shadow-lg border border-neutral-200 overflow-hidden text-[#19140f]">
         
-        {/* Top Crimson Banner */}
-        <div className="relative bg-gradient-to-r from-[#8f1b1b] via-[#a12626] to-[#8f1b1b] text-white p-5 pt-6 pb-5 text-center border-b-4 border-[#b07c12]">
-          {/* Subtle watermark badge */}
-          <div className="flex items-center justify-between mb-3 px-1">
-            <span className="text-[10px] font-extrabold tracking-widest text-[#fce79f] uppercase bg-black/25 px-2.5 py-0.5 rounded-full border border-[#fce79f]/30">
-              OFFICIAL STUDENT DELEGATE PASS
+        {/* Top Crimson Header */}
+        <div className="relative bg-[#8f1b1b] text-white p-5 pb-4 text-center border-b-2 border-[#b07c12]">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-bold tracking-widest text-[#fce79f] uppercase bg-black/20 px-2 py-0.5 rounded">
+              STUDENT DELEGATE PASS
             </span>
-            <span className="text-[10px] font-bold text-white/80 bg-white/10 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-medium text-white/80 bg-white/10 px-2 py-0.5 rounded">
               {attendee.registrationType}
             </span>
           </div>
 
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0">
+          <div className="flex items-center justify-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 shadow-2xs">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo_final.png"
@@ -47,154 +46,145 @@ export default function EPassCard({ attendee, qrDataUrl, event }: EPassCardProps
               />
             </div>
             <div className="text-left">
-              <h1 className="text-xl font-extrabold tracking-tight text-white leading-tight">
-                {event.title}
+              <h1 className="text-base font-bold text-white leading-tight">
+                Vision Mysuru 2050
               </h1>
-              <p className="text-[11px] text-[#fce79f] font-medium leading-tight">
-                Youth & Innovation Summit • Mysuru
+              <p className="text-[11px] text-[#fce79f] leading-tight">
+                Youth & Citizen Think-Tank Summit
               </p>
             </div>
           </div>
         </div>
 
-        {/* Decorative Ticket Perforation Notches */}
-        <div className="relative flex items-center justify-between bg-[#f6f2ea] px-4 py-1.5 border-b border-dashed border-[#b07c12]/30">
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[var(--bg)] border-r-2 border-[#b07c12]/40" />
+        {/* Ticket Perforation Notches */}
+        <div className="relative flex items-center justify-between bg-neutral-50 px-4 py-1.5 border-b border-dashed border-neutral-200">
+          <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#f6f2ea] border-r border-neutral-200" />
           <div className="text-[11px] font-mono font-bold text-[#8f1b1b] tracking-wider mx-auto">
-            PASS ID: {attendee.passCode}
+            {attendee.passCode}
           </div>
-          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[var(--bg)] border-l-2 border-[#b07c12]/40" />
+          <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#f6f2ea] border-l border-neutral-200" />
         </div>
 
         {/* QR Code Presentation Box */}
-        <div className="p-6 text-center space-y-4">
+        <div className="p-5 text-center space-y-4">
           <div className="relative inline-block mx-auto">
-            <div className="p-3 bg-white border-2 border-[#b07c12]/30 rounded-2xl shadow-md inline-block">
+            <div className="p-2.5 bg-white border border-neutral-200 rounded-xl shadow-2xs inline-block">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={qrDataUrl}
                 alt={`QR E-Pass for ${attendee.name}`}
-                width={200}
-                height={200}
-                className="w-48 h-48 object-contain mx-auto"
+                width={180}
+                height={180}
+                className="w-44 h-44 object-contain mx-auto"
               />
             </div>
 
-            {/* Check-in Watermark Stamp */}
+            {/* Check-In Watermark Stamp */}
             {isCheckedIn && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="transform -rotate-12 border-4 border-emerald-600 bg-white/95 text-emerald-700 px-4 py-2 rounded-xl shadow-2xl font-black text-sm tracking-wider flex items-center gap-1.5">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <div className="transform -rotate-12 border-2 border-emerald-600 bg-white/95 text-emerald-700 px-3 py-1.5 rounded-lg shadow-lg font-bold text-xs tracking-wider flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   ADMITTED & VERIFIED
                 </div>
               </div>
             )}
           </div>
 
-          <p className="text-[11px] text-[#6b5b4d] font-semibold">
-            Present this QR code at campus registration desk for scanning
+          <p className="text-[11px] text-neutral-500 font-medium">
+            Scan at campus entrance for badge collection
           </p>
 
-          {/* Attendee Credential Card */}
-          <div className="bg-[#fcfaf7] border border-[#fae4b5] rounded-2xl p-4 text-left space-y-2.5">
+          {/* Delegate Details Card */}
+          <div className="bg-neutral-50 border border-neutral-200/80 rounded-xl p-3.5 text-left space-y-2 text-xs">
             <div>
-              <span className="text-[10px] text-[#8a7a6c] uppercase font-bold tracking-wider block">
+              <span className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider block">
                 Delegate Name
               </span>
-              <span className="text-base font-extrabold text-[#1f140c] block">
+              <span className="text-sm font-bold text-[#19140f] block mt-0.5">
                 {attendee.name}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#f0e6d6]">
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-neutral-200/60">
               <div>
-                <span className="text-[10px] text-[#8a7a6c] uppercase font-bold tracking-wider block">
+                <span className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider block">
                   Institution
                 </span>
-                <span className="text-xs font-semibold text-[#1f140c] line-clamp-2">
+                <span className="text-[11px] font-medium text-neutral-800 line-clamp-2">
                   {attendee.college}
                 </span>
               </div>
               <div>
-                <span className="text-[10px] text-[#8a7a6c] uppercase font-bold tracking-wider block">
-                  USN / Roll Number
+                <span className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider block">
+                  USN / Roll No
                 </span>
-                <span className="text-xs font-mono font-bold text-[#8f1b1b]">
+                <span className="text-[11px] font-mono font-bold text-[#8f1b1b]">
                   {attendee.usn || 'N/A'}
                 </span>
               </div>
             </div>
 
             {attendee.branch && (
-              <div className="pt-1 border-t border-[#f0e6d6]">
-                <span className="text-[10px] text-[#8a7a6c] uppercase font-bold tracking-wider block">
+              <div className="pt-2 border-t border-neutral-200/60">
+                <span className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider block">
                   Program / Department
                 </span>
-                <span className="text-xs text-[#4a3f35] font-medium">
+                <span className="text-[11px] text-neutral-700 font-medium">
                   {attendee.branch}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Event Venue & Time Details */}
-          <div className="bg-[#f6f2ea] rounded-2xl p-4 text-left space-y-2 text-xs">
-            <div className="flex items-start gap-2.5">
-              <Calendar className="w-4 h-4 text-[#8f1b1b] shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-[#1f140c] block">{event.date}</span>
-                <span className="text-[11px] text-[#6b5b4d]">{event.time}</span>
-              </div>
+          {/* Venue & Schedule */}
+          <div className="bg-neutral-50 rounded-xl p-3 text-left space-y-1.5 text-xs text-neutral-700 border border-neutral-200/80">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-[#8f1b1b] shrink-0" />
+              <span className="font-semibold text-neutral-900">{event.date}</span>
+              <span className="text-neutral-500 text-[11px]">• {event.time}</span>
             </div>
 
-            <div className="flex items-start gap-2.5 pt-1.5 border-t border-[#ecdcc4]">
-              <Clock className="w-4 h-4 text-[#b07c12] shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-[#8f1b1b]">Reporting: {event.reportingTime}</span>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2.5 pt-1.5 border-t border-[#ecdcc4]">
-              <MapPin className="w-4 h-4 text-[#8f1b1b] shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-[#1f140c] block">{event.venue}</span>
-                <span className="text-[11px] text-[#6b5b4d] block">{event.venueDetails}</span>
+            <div className="flex items-start gap-2 pt-1 border-t border-neutral-200/60">
+              <MapPin className="w-3.5 h-3.5 text-[#8f1b1b] shrink-0 mt-0.5" />
+              <div className="text-[11px] leading-tight">
+                <span className="font-semibold text-neutral-900 block">{event.venue}</span>
+                <span className="text-neutral-500 text-[10px]">SDMIMD Campus, Chamundi Hill Road, Mysuru</span>
               </div>
             </div>
           </div>
 
-          {/* Security & Verification Footer */}
-          <div className="flex items-center justify-between text-[10px] text-[#8a7a6c] pt-2 px-1">
-            <span className="flex items-center gap-1 font-semibold text-[#8f1b1b]">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Official SDMIMD Verified Pass
+          {/* Verification Badge */}
+          <div className="flex items-center justify-between text-[10px] text-neutral-400 pt-1">
+            <span className="flex items-center gap-1 font-medium text-neutral-600">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#b07c12]" />
+              SDMIMD Official Pass
             </span>
             <span>Issue Date: Nov 2026</span>
           </div>
         </div>
 
-        {/* Bottom Gold Accent Bar */}
-        <div className="h-2 bg-gradient-to-r from-[#b07c12] via-[#e5a93c] to-[#b07c12]" />
+        {/* Bottom hairline accent */}
+        <div className="h-1 bg-[#b07c12]" />
       </div>
 
-      {/* Screen Action Controls (Hidden when printed) */}
-      <div className="no-print mt-5 flex items-center justify-center gap-3">
+      {/* Action Buttons */}
+      <div className="no-print mt-4 flex items-center justify-center gap-2">
         <button
           onClick={handlePrint}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#8f1b1b] hover:bg-[#a12626] text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#8f1b1b] hover:bg-[#781616] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors"
         >
-          <Printer className="w-4 h-4" />
-          Print / Save PDF
+          <Printer className="w-3.5 h-3.5" />
+          <span>Print / Save PDF</span>
         </button>
 
         <a
           href={`https://maps.google.com/?q=${encodeURIComponent('SDMIMD Mysuru Chamundi Hill Road')}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[var(--border)] hover:bg-[var(--surface-2)] text-[var(--text)] rounded-xl text-xs font-semibold shadow-xs transition-colors"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-neutral-200 hover:bg-neutral-50 text-neutral-700 rounded-lg text-xs font-medium transition-colors"
         >
           <MapPin className="w-3.5 h-3.5 text-[#b07c12]" />
-          Campus Map
+          <span>Campus Map</span>
         </a>
       </div>
     </div>

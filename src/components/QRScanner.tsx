@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Camera, CameraOff, RefreshCw, Volume2, VolumeX, Sparkles, AlertCircle } from 'lucide-react';
+import { Camera, CameraOff, Volume2, VolumeX, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 
 interface QRScannerProps {
@@ -30,41 +30,41 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
         const ctx = new AudioCtx();
 
         if (type === 'success') {
-          // Pleasant high double beep
+          // Pleasant high double chime
           const osc1 = ctx.createOscillator();
           const osc2 = ctx.createOscillator();
           const gain = ctx.createGain();
 
-          osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-          osc2.frequency.setValueAtTime(880.0, ctx.currentTime + 0.1); // A5
+          osc1.frequency.setValueAtTime(587.33, ctx.currentTime);
+          osc2.frequency.setValueAtTime(880.0, ctx.currentTime + 0.08);
 
-          gain.gain.setValueAtTime(0.15, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 0.25);
 
           osc1.connect(gain);
           osc2.connect(gain);
           gain.connect(ctx.destination);
 
           osc1.start(ctx.currentTime);
-          osc1.stop(ctx.currentTime + 0.1);
-          osc2.start(ctx.currentTime + 0.1);
-          osc2.stop(ctx.currentTime + 0.3);
+          osc1.stop(ctx.currentTime + 0.08);
+          osc2.start(ctx.currentTime + 0.08);
+          osc2.stop(ctx.currentTime + 0.25);
         } else {
-          // Warning low buzz
+          // Warning tone
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(220, ctx.currentTime);
-          osc.frequency.setValueAtTime(160, ctx.currentTime + 0.15);
+          osc.frequency.setValueAtTime(160, ctx.currentTime + 0.12);
 
-          gain.gain.setValueAtTime(0.2, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 0.35);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
 
           osc.start(ctx.currentTime);
-          osc.stop(ctx.currentTime + 0.4);
+          osc.stop(ctx.currentTime + 0.35);
         }
       } catch (e) {
         console.warn('Audio tone error:', e);
@@ -79,7 +79,6 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
       .then((devices) => {
         if (devices && devices.length > 0) {
           setCameras(devices);
-          // Prefer environment (back) camera if available, else first camera
           const backCam = devices.find(
             (d) =>
               d.label.toLowerCase().includes('back') ||
@@ -88,12 +87,12 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
           );
           setSelectedCameraId(backCam ? backCam.id : devices[0].id);
         } else {
-          setCameraError('No camera found on this device.');
+          setCameraError('No camera detected on this device.');
         }
       })
       .catch((err) => {
         console.warn('Camera enumeration error:', err);
-        setCameraError('Unable to access camera permissions. You can also use the manual code input below.');
+        setCameraError('Camera access not granted. Use manual search/code entry below.');
       });
 
     return () => {
@@ -119,12 +118,11 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
         targetCamera,
         {
           fps: 15,
-          qrbox: { width: 260, height: 260 },
+          qrbox: { width: 240, height: 240 },
           aspectRatio: 1.0,
         },
         (decodedText) => {
           if (isProcessing) return;
-          // Avoid spamming the exact same scan in a 2-second burst
           if (lastScanned === decodedText) return;
 
           setLastScanned(decodedText);
@@ -133,17 +131,15 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
 
           setTimeout(() => {
             setLastScanned(null);
-          }, 2500);
+          }, 2400);
         },
-        () => {
-          // Scan frame without QR code
-        }
+        () => {}
       );
 
       setIsScanning(true);
     } catch (err: any) {
       console.error('Failed to start camera:', err);
-      setCameraError(err.message || 'Failed to start camera. Please check permissions.');
+      setCameraError(err.message || 'Failed to start camera.');
       setIsScanning(false);
     }
   };
@@ -177,114 +173,121 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
   };
 
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col">
-      {/* Scanner Header Controls */}
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col">
+      {/* Header Controls */}
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <h2 className="text-sm font-bold text-[var(--text)] flex items-center gap-1.5">
-            Live QR Scanner
-            {isScanning && (
-              <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                ACTIVE
-              </span>
-            )}
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isScanning ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-300'
+            }`}
+          />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
+            Camera QR Scanner
           </h2>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Sound Toggle */}
           <button
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
-            title={soundEnabled ? 'Mute Chime Sound' : 'Enable Chime Sound'}
-            className="p-1.5 text-[var(--text-muted)] hover:text-[#8f1b1b] rounded-lg bg-[var(--surface-2)] text-xs flex items-center gap-1 transition-colors"
+            title={soundEnabled ? 'Mute Chime' : 'Unmute Chime'}
+            className="p-1.5 text-[var(--text-subtle)] hover:text-[var(--text)] rounded-md hover:bg-[var(--surface-2)] transition-colors"
           >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-[#8f1b1b]" /> : <VolumeX className="w-3.5 h-3.5" />}
+            {soundEnabled ? (
+              <Volume2 className="w-3.5 h-3.5 text-[#b07c12]" />
+            ) : (
+              <VolumeX className="w-3.5 h-3.5" />
+            )}
           </button>
 
-          {/* Toggle Scan Camera Button */}
+          {/* Start/Stop Camera */}
           <button
             type="button"
             onClick={handleToggleCamera}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isScanning
-                ? 'bg-red-600 hover:bg-red-700 text-white'
-                : 'bg-[#8f1b1b] hover:bg-[#a12626] text-white'
+                ? 'bg-neutral-200 hover:bg-neutral-300 text-neutral-800'
+                : 'bg-[#8f1b1b] hover:bg-[#781616] text-white shadow-2xs'
             }`}
           >
             {isScanning ? (
               <>
                 <CameraOff className="w-3.5 h-3.5" />
-                Stop
+                <span>Stop</span>
               </>
             ) : (
               <>
                 <Camera className="w-3.5 h-3.5" />
-                Start Scanner
+                <span>Start Camera</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Video Viewport */}
-      <div className="relative w-full aspect-square max-w-[340px] mx-auto rounded-xl overflow-hidden bg-neutral-900 border-2 border-neutral-800 flex items-center justify-center">
-        {/* html5-qrcode reader mounting element */}
+      {/* Viewport Frame */}
+      <div className="relative w-full aspect-square max-w-[320px] mx-auto rounded-xl overflow-hidden bg-neutral-950 border border-neutral-800 flex items-center justify-center">
         <div id={readerElementId} className="w-full h-full" />
 
-        {/* Overlay guides when scanning */}
+        {/* Reticle Overlay when scanning */}
         {isScanning && (
           <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-            {/* Corner Reticle */}
-            <div className="w-56 h-56 relative border-2 border-[#b07c12]/80 rounded-2xl shadow-lg">
-              {/* Animated laser line */}
-              <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#e5a93c] to-transparent animate-bounce top-1/2 opacity-90 shadow-sm" />
+            <div className="w-48 h-48 relative border border-white/20 rounded-xl">
+              {/* Corner accents */}
+              <div className="absolute -top-0.5 -left-0.5 w-4 h-4 border-t-2 border-l-2 border-[#e5a93c] rounded-tl-sm" />
+              <div className="absolute -top-0.5 -right-0.5 w-4 h-4 border-t-2 border-r-2 border-[#e5a93c] rounded-tr-sm" />
+              <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 border-b-2 border-l-2 border-[#e5a93c] rounded-bl-sm" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 border-b-2 border-r-2 border-[#e5a93c] rounded-br-sm" />
+
+              {/* Scanning beam */}
+              <div className="absolute left-2 right-2 h-0.5 bg-gradient-to-r from-transparent via-[#e5a93c] to-transparent animate-pulse top-1/2 opacity-75" />
             </div>
-            <p className="mt-3 text-[11px] font-semibold text-white/90 bg-black/60 px-3 py-1 rounded-full backdrop-blur">
-              Point camera at student&apos;s E-Pass QR
+            <p className="mt-3 text-[10px] font-medium text-white/80 bg-black/60 px-2.5 py-0.5 rounded-full backdrop-blur-xs">
+              Position delegate QR pass inside frame
             </p>
           </div>
         )}
 
-        {/* Inactive State Display */}
+        {/* Inactive Standby View */}
         {!isScanning && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-neutral-950/95 text-neutral-300">
-            <div className="w-14 h-14 rounded-2xl bg-[#8f1b1b]/20 border border-[#8f1b1b]/40 flex items-center justify-center text-[#e5a93c] mb-3">
-              <Camera className="w-7 h-7" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-neutral-900/95 text-neutral-300">
+            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#e5a93c] mb-2.5">
+              <Camera className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-white mb-1">Camera Standby</h3>
-            <p className="text-xs text-neutral-400 mb-4 max-w-[220px]">
-              Tap &apos;Start Scanner&apos; to verify student tickets using your phone or laptop camera.
+            <h3 className="text-xs font-bold text-white mb-1">Camera Standby</h3>
+            <p className="text-[11px] text-neutral-400 mb-3 max-w-[200px] leading-relaxed">
+              Use your device camera to rapidly verify arriving delegates.
             </p>
             <button
               onClick={() => startCamera()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#8f1b1b] to-[#a12626] text-white text-xs font-bold rounded-xl shadow-md hover:scale-102 transition-transform"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#fce79f]" />
-              Activate Scanner
+              <Sparkles className="w-3 h-3 text-[#fce79f]" />
+              <span>Enable Camera</span>
             </button>
           </div>
         )}
 
-        {/* Processing Indicator */}
+        {/* Processing State */}
         {isProcessing && (
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex flex-col items-center justify-center text-white z-20">
-            <RefreshCw className="w-8 h-8 text-[#e5a93c] animate-spin mb-2" />
-            <span className="text-xs font-semibold tracking-wide">Verifying E-Pass...</span>
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center text-white z-20">
+            <RefreshCw className="w-7 h-7 text-[#e5a93c] animate-spin mb-2" />
+            <span className="text-xs font-medium tracking-wide">Verifying delegate...</span>
           </div>
         )}
       </div>
 
-      {/* Camera Selection & Status footer */}
-      <div className="mt-3 pt-3 border-t border-[var(--border)] flex flex-col gap-2">
-        {cameras.length > 1 && (
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--text-muted)] text-[11px]">Select Camera:</span>
+      {/* Footer Controls: Camera selector */}
+      <div className="mt-3 pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs">
+        {cameras.length > 1 ? (
+          <div className="flex items-center gap-2 w-full justify-between">
+            <span className="text-[11px] text-[var(--text-subtle)]">Camera:</span>
             <select
               value={selectedCameraId}
               onChange={handleCameraChange}
-              className="text-xs bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-1 text-[var(--text)] max-w-[190px] truncate"
+              className="text-xs bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-1 text-[var(--text)] max-w-[200px] truncate"
             >
               {cameras.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -293,12 +296,16 @@ export default function QRScanner({ onScanSuccess, isProcessing = false }: QRSca
               ))}
             </select>
           </div>
+        ) : (
+          <span className="text-[11px] text-[var(--text-subtle)]">
+            {isScanning ? 'Scanner active' : 'Click "Start Camera" or use search below'}
+          </span>
         )}
 
         {cameraError && (
-          <div className="flex items-start gap-1.5 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800 text-[11px]">
-            <AlertCircle className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
-            <span>{cameraError}</span>
+          <div className="flex items-center gap-1 text-amber-700 text-[11px]">
+            <AlertCircle className="w-3 h-3 shrink-0" />
+            <span className="truncate max-w-[220px]">{cameraError}</span>
           </div>
         )}
       </div>

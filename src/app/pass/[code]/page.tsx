@@ -45,27 +45,27 @@ function PassContent() {
   return (
     <div className="flex-1 flex items-center justify-center">
       {loading ? (
-        <div className="text-center py-16 space-y-3">
-          <RefreshCw className="w-8 h-8 text-[#8f1b1b] animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#6b5b4d]">
-            Generating Official E-Pass Badge...
+        <div className="text-center py-16 space-y-2.5">
+          <RefreshCw className="w-6 h-6 text-[#8f1b1b] animate-spin mx-auto" />
+          <p className="text-xs font-medium text-[var(--text-muted)]">
+            Loading E-Pass Badge...
           </p>
         </div>
       ) : error || !attendee || !event ? (
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-red-200 shadow-xl text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
-            <AlertCircle className="w-7 h-7" />
+        <div className="max-w-sm w-full bg-white rounded-2xl p-6 border border-neutral-200 shadow-lg text-center space-y-3">
+          <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-red-800">Invalid E-Pass</h2>
-          <p className="text-xs text-neutral-600">
+          <h2 className="text-sm font-bold text-neutral-900">Pass Code Not Found</h2>
+          <p className="text-xs text-neutral-500">
             {error || 'No delegate registration found matching this pass code.'}
           </p>
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#8f1b1b] text-white rounded-xl text-xs font-bold shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#8f1b1b] hover:bg-[#781616] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors"
             >
-              Go to Registration Desk
+              Go to Desk
             </Link>
           </div>
         </div>
@@ -78,29 +78,29 @@ function PassContent() {
 
 export default function StudentPassPage() {
   return (
-    <div className="min-h-screen bg-[#f6f2ea] text-[#1f140c] flex flex-col py-6 px-4 sm:px-6">
+    <div className="min-h-screen bg-[#fcfbfa] text-[#19140f] flex flex-col py-6 px-4 sm:px-6">
       {/* Top minimal header */}
-      <div className="max-w-md w-full mx-auto mb-4 flex items-center justify-between no-print">
+      <div className="max-w-sm w-full mx-auto mb-4 flex items-center justify-between no-print">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8f1b1b] hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[#8f1b1b] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          Registration Desk
+          <span>Desk Scanner</span>
         </Link>
 
-        <span className="text-[11px] font-bold text-[#b07c12] uppercase tracking-wider flex items-center gap-1">
+        <span className="text-[11px] font-semibold text-[#b07c12] flex items-center gap-1">
           <ShieldCheck className="w-3.5 h-3.5" />
-          Verified Pass
+          <span>Verified Pass</span>
         </span>
       </div>
 
       <Suspense
         fallback={
-          <div className="flex-1 flex items-center justify-center text-center py-16 space-y-3">
-            <RefreshCw className="w-8 h-8 text-[#8f1b1b] animate-spin mx-auto" />
-            <p className="text-xs font-semibold text-[#6b5b4d]">
-              Loading E-Pass Portal...
+          <div className="flex-1 flex items-center justify-center text-center py-16 space-y-2.5">
+            <RefreshCw className="w-6 h-6 text-[#8f1b1b] animate-spin mx-auto" />
+            <p className="text-xs font-medium text-[var(--text-muted)]">
+              Loading Pass...
             </p>
           </div>
         }
@@ -109,8 +109,8 @@ export default function StudentPassPage() {
       </Suspense>
 
       {/* Public Footer */}
-      <footer className="mt-8 text-center text-xs text-[#8a7a6c] no-print">
-        <p>Vision Mysuru 2050 Secretariat • SDMIMD Campus, Mysuru</p>
+      <footer className="mt-8 text-center text-[11px] text-neutral-400 no-print">
+        Vision Mysuru 2050 Secretariat • SDMIMD Campus, Mysuru
       </footer>
     </div>
   );

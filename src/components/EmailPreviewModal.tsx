@@ -22,52 +22,44 @@ export default function EmailPreviewModal({
   if (!isOpen || !attendee) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="w-full max-w-2xl bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-100">
+      <div className="w-full max-w-2xl bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xl overflow-hidden flex flex-col h-[85vh]">
+        
         {/* Header */}
-        <div className="p-4 bg-gradient-to-r from-[#8f1b1b] to-[#a12626] text-white flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
-              <Mail className="w-5 h-5 text-[#fce79f]" />
-            </div>
+        <div className="p-3.5 px-5 border-b border-[var(--border)] flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-[#8f1b1b]" />
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-white">
-                Invitation E-Pass Email Preview
+              <h3 className="text-sm font-bold text-[var(--text)]">
+                Email Invitation Preview
               </h3>
-              <p className="text-xs text-[#fce79f]">
-                Live preview of email sent to {attendee.name} ({attendee.email})
-              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="p-1 rounded-md text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Email Meta Info Bar */}
-        <div className="bg-[#f6f2ea] p-3 px-4 border-b border-[var(--border)] text-xs space-y-1">
+        {/* Email Meta Bar */}
+        <div className="bg-[var(--surface-2)] p-2.5 px-5 border-b border-[var(--border)] text-xs space-y-1 text-neutral-600">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#6b5b4d] w-16">Subject:</span>
-            <span className="font-semibold text-[#1f140c]">
+            <span className="font-semibold text-neutral-400 w-14">Subject:</span>
+            <span className="text-neutral-900 font-medium">
               Your Official E-Pass: Vision Mysuru 2050 Summit ({attendee.passCode})
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#6b5b4d] w-16">To:</span>
-            <span className="text-[#1f140c]">{attendee.name} &lt;{attendee.email}&gt;</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#6b5b4d] w-16">From:</span>
-            <span className="text-[#1f140c]">Vision Mysuru 2050 Secretariat &lt;visionmysuru2050@gmail.com&gt;</span>
+            <span className="font-semibold text-neutral-400 w-14">To:</span>
+            <span className="text-neutral-800">{attendee.name} &lt;{attendee.email}&gt;</span>
           </div>
         </div>
 
-        {/* Live Iframe Body */}
-        <div className="flex-1 bg-neutral-100 p-2 sm:p-4 overflow-hidden flex flex-col">
-          <div className="w-full flex-1 bg-white rounded-xl shadow-inner border border-neutral-300 overflow-hidden">
+        {/* Iframe View */}
+        <div className="flex-1 bg-neutral-100 p-2 sm:p-3 overflow-hidden flex flex-col">
+          <div className="w-full flex-1 bg-white rounded-lg shadow-2xs border border-neutral-300 overflow-hidden">
             <iframe
               src={`/api/email/preview?id=${attendee.id}`}
               className="w-full h-full border-0"
@@ -76,22 +68,22 @@ export default function EmailPreviewModal({
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-3.5 bg-[var(--surface-2)] border-t border-[var(--border)] flex items-center justify-between">
+        {/* Footer */}
+        <div className="p-3 px-5 bg-[var(--surface-2)] border-t border-[var(--border)] flex items-center justify-between text-xs">
           <a
             href={`/pass/${attendee.passCode}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8f1b1b] hover:underline"
+            className="inline-flex items-center gap-1 font-medium text-[#8f1b1b] hover:underline"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Open Student E-Pass Web View
+            <ExternalLink className="w-3 h-3" />
+            <span>Open E-Pass Page</span>
           </a>
 
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold rounded-xl bg-white border border-[var(--border)] text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+              className="px-3.5 py-1.5 font-medium rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-3)] transition-colors"
             >
               Close
             </button>
@@ -99,14 +91,15 @@ export default function EmailPreviewModal({
               <button
                 onClick={() => onSendNow(attendee.id)}
                 disabled={sending}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#8f1b1b] hover:bg-[#a12626] text-white shadow-xs transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-1.5 font-semibold rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white shadow-2xs transition-colors flex items-center gap-1.5"
               >
-                <Send className="w-3.5 h-3.5" />
-                {sending ? 'Dispatching...' : 'Send This Invitation Now'}
+                <Send className="w-3 h-3" />
+                <span>{sending ? 'Sending...' : 'Send This Invitation'}</span>
               </button>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

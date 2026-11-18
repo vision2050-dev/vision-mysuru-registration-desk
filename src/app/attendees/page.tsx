@@ -9,19 +9,18 @@ import { StudentAttendee } from '@/types';
 import {
   Users,
   Search,
-  Filter,
   UserPlus,
   FileSpreadsheet,
   Download,
   Mail,
   Send,
   Ticket,
-  CheckCircle2,
+  Check,
   Clock,
   Trash2,
   ExternalLink,
   Eye,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -103,7 +102,7 @@ export default function AttendeesPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(`Dispatched e-passes: ${data.sent} sent successfully!`);
+        alert(`Dispatched e-passes: ${data.sent} sent successfully.`);
         setSelectedIds([]);
         fetchAttendees();
       }
@@ -133,7 +132,7 @@ export default function AttendeesPage() {
 
   // Handle delete attendee
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove ${name} from the delegate register?`)) return;
+    if (!confirm(`Remove ${name} from registry?`)) return;
 
     try {
       const res = await fetch(`/api/attendees/${id}`, { method: 'DELETE' });
@@ -165,60 +164,62 @@ export default function AttendeesPage() {
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)]">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
         
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[var(--text)] flex items-center gap-2">
-              <Users className="w-6 h-6 text-[#8f1b1b]" />
-              Student Attendees & E-Pass Registry
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text)] flex items-center gap-2">
+              Delegate Registry
+              <span className="text-xs font-normal text-[var(--text-muted)]">
+                ({attendees.length} total)
+              </span>
             </h1>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Manage registered students, track attendance badges, and issue QR e-passes.
+              Manage student registrations, attendance badges, and digital e-passes.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#8f1b1b] hover:bg-[#a12626] text-white text-xs font-bold shadow-xs transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8f1b1b] hover:bg-[#781616] text-white text-xs font-semibold shadow-2xs transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              Add Delegate
+              <span>Add Delegate</span>
             </button>
 
             <button
               onClick={() => setIsBulkModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#b07c12] hover:bg-[#96670a] text-white text-xs font-bold shadow-xs transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text)] text-xs font-medium border border-[var(--border)] transition-colors"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              Import CSV
+              <FileSpreadsheet className="w-3.5 h-3.5 text-[#b07c12]" />
+              <span>Import CSV</span>
             </button>
 
             <a
               href="/api/export"
               download
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--border)] text-[var(--text)] text-xs font-semibold border border-[var(--border)] transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--text)] text-xs font-medium border border-[var(--border)] transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-[#b07c12]" />
-              Export
+              <Download className="w-3.5 h-3.5" />
+              <span>Export</span>
             </a>
           </div>
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 shadow-2xs">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
             {/* Search Input */}
             <div className="sm:col-span-6 relative">
-              <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--text-subtle)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search by student name, email, pass ID, or USN..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[#8f1b1b]"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[#8f1b1b]"
               />
             </div>
 
@@ -227,7 +228,7 @@ export default function AttendeesPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[#8f1b1b]"
+                className="w-full px-2.5 py-1.5 text-xs rounded-lg bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[#8f1b1b]"
               >
                 <option value="">All Check-In Statuses</option>
                 <option value="checked_in">Checked In (Admitted)</option>
@@ -235,33 +236,33 @@ export default function AttendeesPage() {
               </select>
             </div>
 
-            {/* Action for Selected */}
+            {/* Bulk Action */}
             <div className="sm:col-span-3 flex items-center justify-end">
               <button
                 onClick={handleBulkSendEmails}
                 disabled={bulkSending}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#8f1b1b]/10 text-[#8f1b1b] hover:bg-[#8f1b1b]/20 text-xs font-bold border border-[#8f1b1b]/30 transition"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[#8f1b1b] text-xs font-semibold border border-[var(--border)] transition-colors disabled:opacity-50"
               >
                 <Mail className="w-3.5 h-3.5" />
-                {bulkSending ? (
-                  'Dispatching...'
-                ) : selectedIds.length > 0 ? (
-                  `Send E-Pass to (${selectedIds.length})`
-                ) : (
-                  'Send to All Pending'
-                )}
+                <span>
+                  {bulkSending
+                    ? 'Sending...'
+                    : selectedIds.length > 0
+                    ? `Email E-Pass (${selectedIds.length})`
+                    : 'Email All Pending'}
+                </span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Attendees Table */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xs overflow-hidden">
+        {/* Clean Attendees Table */}
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#f6f2ea] text-[#1f140c] font-bold border-b border-[var(--border)]">
+              <thead className="bg-[var(--surface-2)] text-[var(--text-subtle)] font-semibold text-[11px] uppercase tracking-wider border-b border-[var(--border)]">
                 <tr>
-                  <th className="py-3 px-3 w-8">
+                  <th className="py-2.5 px-3 w-8">
                     <input
                       type="checkbox"
                       onChange={handleSelectAll}
@@ -269,27 +270,27 @@ export default function AttendeesPage() {
                       className="rounded"
                     />
                   </th>
-                  <th className="py-3 px-3">Student Delegate</th>
-                  <th className="py-3 px-3">Pass ID</th>
-                  <th className="py-3 px-3">College & USN</th>
-                  <th className="py-3 px-3">Category</th>
-                  <th className="py-3 px-3">Check-In</th>
-                  <th className="py-3 px-3">Invitation Email</th>
-                  <th className="py-3 px-3 text-right">Actions</th>
+                  <th className="py-2.5 px-3">Delegate</th>
+                  <th className="py-2.5 px-3">Pass ID</th>
+                  <th className="py-2.5 px-3">College / USN</th>
+                  <th className="py-2.5 px-3">Type</th>
+                  <th className="py-2.5 px-3">Check-In</th>
+                  <th className="py-2.5 px-3">Email Pass</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-[var(--text-muted)]">
-                      <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#8f1b1b]" />
+                    <td colSpan={8} className="py-10 text-center text-[var(--text-subtle)]">
+                      <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-1.5 text-[#8f1b1b]" />
                       Loading delegate registry...
                     </td>
                   </tr>
                 ) : attendees.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-[var(--text-muted)]">
-                      No student delegates found matching current filters.
+                    <td colSpan={8} className="py-10 text-center text-[var(--text-subtle)]">
+                      No delegates found matching filter criteria.
                     </td>
                   </tr>
                 ) : (
@@ -302,10 +303,10 @@ export default function AttendeesPage() {
                       <tr
                         key={att.id}
                         className={`hover:bg-[var(--surface-2)] transition-colors ${
-                          isSelected ? 'bg-amber-500/5' : ''
+                          isSelected ? 'bg-amber-50/40' : ''
                         }`}
                       >
-                        <td className="py-3 px-3">
+                        <td className="py-2.5 px-3">
                           <input
                             type="checkbox"
                             checked={isSelected}
@@ -314,128 +315,111 @@ export default function AttendeesPage() {
                           />
                         </td>
 
-                        {/* Delegate Name & Email */}
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-[var(--text)]">{att.name}</div>
-                          <div className="text-[11px] text-[var(--text-muted)]">{att.email}</div>
-                          {att.phone && (
-                            <div className="text-[10px] text-[var(--text-muted)]">{att.phone}</div>
-                          )}
+                        {/* Name & Contact */}
+                        <td className="py-2.5 px-3">
+                          <div className="font-semibold text-[var(--text)]">{att.name}</div>
+                          <div className="text-[11px] text-[var(--text-subtle)]">{att.email}</div>
                         </td>
 
                         {/* Pass ID */}
-                        <td className="py-3 px-3">
+                        <td className="py-2.5 px-3">
                           <Link
                             href={`/pass/${att.passCode}`}
                             target="_blank"
-                            className="font-mono font-bold text-[#8f1b1b] hover:underline flex items-center gap-1"
+                            className="font-mono font-medium text-[#8f1b1b] hover:underline"
                           >
-                            <Ticket className="w-3.5 h-3.5" />
                             {att.passCode}
                           </Link>
                         </td>
 
                         {/* College & USN */}
-                        <td className="py-3 px-3">
-                          <div className="font-medium text-[var(--text)] line-clamp-1 max-w-[200px]">
+                        <td className="py-2.5 px-3">
+                          <div className="text-[var(--text)] truncate max-w-[200px]">
                             {att.college}
                           </div>
-                          <div className="text-[11px] text-[var(--text-muted)]">
-                            {att.usn ? `USN: ${att.usn}` : att.branch || 'Delegation'}
+                          <div className="text-[11px] text-[var(--text-subtle)] font-mono">
+                            {att.usn || att.branch || '—'}
                           </div>
                         </td>
 
                         {/* Category */}
-                        <td className="py-3 px-3">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#8f1b1b]/10 text-[#8f1b1b] border border-[#8f1b1b]/20 whitespace-nowrap">
+                        <td className="py-2.5 px-3">
+                          <span className="text-[11px] text-[var(--text-muted)] font-medium bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)] whitespace-nowrap">
                             {att.registrationType}
                           </span>
                         </td>
 
                         {/* Check-In Status */}
-                        <td className="py-3 px-3">
+                        <td className="py-2.5 px-3">
                           <button
                             onClick={() => handleToggleCheckIn(att)}
                             title="Click to toggle check-in status"
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition ${
-                              isChecked
-                                ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                            }`}
+                            className="inline-flex items-center gap-1.5 text-xs text-left group"
                           >
-                            {isChecked ? (
-                              <>
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                Checked In
-                              </>
-                            ) : (
-                              <>
-                                <Clock className="w-3 h-3 text-neutral-400" />
-                                Pending
-                              </>
-                            )}
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                isChecked ? 'bg-emerald-500' : 'bg-neutral-300'
+                              }`}
+                            />
+                            <span
+                              className={`font-medium ${
+                                isChecked ? 'text-emerald-700' : 'text-[var(--text-subtle)]'
+                              }`}
+                            >
+                              {isChecked ? 'Admitted' : 'Pending'}
+                            </span>
                           </button>
-                          {isChecked && att.checkedInAt && (
-                            <div className="text-[10px] text-[var(--text-muted)] mt-0.5 font-mono">
-                              {new Date(att.checkedInAt).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </div>
-                          )}
                         </td>
 
                         {/* Email Status */}
-                        <td className="py-3 px-3">
+                        <td className="py-2.5 px-3">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`text-[11px] font-semibold ${
+                              className={`text-[11px] ${
                                 emailSent
-                                  ? 'text-emerald-700 font-bold'
-                                  : att.emailStatus === 'failed'
-                                  ? 'text-red-600'
-                                  : 'text-amber-700'
+                                  ? 'text-emerald-700 font-medium'
+                                  : 'text-[var(--text-subtle)]'
                               }`}
                             >
-                              {emailSent ? 'Delivered' : att.emailStatus === 'failed' ? 'Failed' : 'Pending'}
+                              {emailSent ? 'Sent' : 'Pending'}
                             </span>
                             <button
                               onClick={() => handleSendEmail(att.id)}
                               disabled={sendingId === att.id}
-                              title="Send or resend e-pass email"
-                              className="p-1 rounded text-[var(--text-muted)] hover:text-[#8f1b1b] hover:bg-[var(--surface-2)] transition"
+                              title="Send or resend email"
+                              className="p-1 text-[var(--text-subtle)] hover:text-[#8f1b1b] rounded transition"
                             >
-                              <Send className="w-3.5 h-3.5" />
+                              <Send className="w-3 h-3" />
                             </button>
                           </div>
                         </td>
 
-                        {/* Actions */}
-                        <td className="py-3 px-3 text-right">
+                        {/* Action Buttons */}
+                        <td className="py-2.5 px-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <button
                               onClick={() => setPreviewAttendee(att)}
-                              title="Preview Email Invitation"
-                              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[#8f1b1b] hover:bg-[var(--surface-2)] transition"
+                              title="Preview Email"
+                              className="p-1.5 rounded text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-3)] transition"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3.5 h-3.5" />
                             </button>
 
                             <Link
                               href={`/pass/${att.passCode}`}
                               target="_blank"
-                              title="Open Public E-Pass Badge"
-                              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[#b07c12] hover:bg-[var(--surface-2)] transition"
+                              title="View E-Pass"
+                              className="p-1.5 rounded text-[var(--text-subtle)] hover:text-[#b07c12] hover:bg-[var(--surface-3)] transition"
                             >
-                              <ExternalLink className="w-4 h-4" />
+                              <ExternalLink className="w-3.5 h-3.5" />
                             </Link>
 
                             <button
                               onClick={() => handleDelete(att.id, att.name)}
-                              title="Delete attendee"
-                              className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-600 hover:bg-red-50 transition"
+                              title="Delete"
+                              className="p-1.5 rounded text-[var(--text-subtle)] hover:text-red-600 hover:bg-red-50 transition"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </td>
