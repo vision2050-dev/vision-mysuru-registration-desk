@@ -1,0 +1,52 @@
+[
+  {
+    "id": "email_att_01",
+    "attendeeId": "att_01",
+    "attendeeName": "Ananya Sharma",
+    "recipientEmail": "ananya.sharma@sdmimd.ac.in",
+    "passCode": "VM2050-7821-MYS",
+    "sentAt": "2026-11-20T10:15:00.000Z",
+    "status": "sent",
+    "messageId": "<vm2050_att_01@visionmysuru2050.in>"
+  },
+  {
+    "id": "email_att_02",
+    "attendeeId": "att_02",
+    "attendeeName": "Rohan Deshmukh",
+    "recipientEmail": "rohan.d@jssstuniv.in",
+    "passCode": "VM2050-9342-MYS",
+    "sentAt": "2026-11-20T10:15:30.000Z",
+    "status": "sent",
+    "messageId": "<vm2050_att_02@visionmysuru2050.in>"
+  },
+  {
+    "id": "email_att_03",
+    "attendeeId": "att_03",
+    "attendeeName": "Priyanka Gowda",
+    "recipientEmail": "priyanka.gowda@nie.ac.in",
+    "passCode": "VM2050-4105-MYS",
+    "sentAt": "2026-11-20T10:16:00.000Z",
+    "status": "sent",
+    "messageId": "<vm2050_att_03@visionmysuru2050.in>"
+  },
+  {
+    "id": "email_att_06",
+    "attendeeId": "att_06",
+    "attendeeName": "Aditya Rao",
+    "recipientEmail": "aditya.rao@amrita.edu",
+    "passCode": "VM2050-5290-MYS",
+    "sentAt": "2026-11-20T10:17:00.000Z",
+    "status": "sent",
+    "messageId": "<vm2050_att_06@visionmysuru2050.in>"
+  },
+  {
+    "id": "email_att_08",
+    "attendeeId": "att_08",
+    "attendeeName": "Dr. Ramesh Kulkarni",
+    "recipientEmail": "ramesh.kulkarni@sdmimd.ac.in",
+    "passCode": "VM2050-8914-MYS",
+    "sentAt": "2026-11-20T10:14:00.000Z",
+    "status": "sent",
+    "messageId": "<vm2050_att_08@visionmysuru2050.in>"
+  }
+]

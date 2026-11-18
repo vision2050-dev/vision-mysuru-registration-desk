@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #fffefc;
+    --surface: #ffffff;
+    --surface-2: #f4efe6;
+    --text: #1f140c;
+    --text-muted: #6b5b4d;
+    --border: #1f140c1f;
+    --accent: #b07c12;
+    --accent-hover: #96670a;
+    --accent-soft: #b07c1224;
+    --primary: #8f1b1b;
+    --primary-hover: #a12626;
+    --primary-soft: #8f1b1b20;
+    --success: #15803d;
+    --success-soft: #dcfce7;
+    --warning: #b45309;
+    --warning-soft: #fef3c7;
+    --danger: #b91c1c;
+    --danger-soft: #fee2e2;
+  }
+
+  .dark {
+    --bg: #0b0c0e;
+    --surface: #14161b;
+    --surface-2: #1e2027;
+    --text: #f5f3ee;
+    --text-muted: #a89f91;
+    --border: #f5f3ee1f;
+    --accent: #e5a93c;
+    --accent-hover: #f3be58;
+    --accent-soft: #e5a93c2b;
+    --primary: #b82c2c;
+    --primary-hover: #cf3737;
+    --primary-soft: #b82c2c33;
+    --success: #22c55e;
+    --success-soft: #14532d40;
+    --warning: #f59e0b;
+    --warning-soft: #78350f40;
+    --danger: #ef4444;
+    --danger-soft: #7f1d1d40;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-soft);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Subtle holographic pulse for e-pass */
+@keyframes holographicShine {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.holo-gradient {
+  background: linear-gradient(135deg, rgba(176,124,18,0.15) 0%, rgba(143,27,27,0.1) 50%, rgba(229,169,60,0.2) 100%);
+  background-size: 200% 200%;
+  animation: holographicShine 6s ease infinite;
+}
+
+/* Print Styles for E-Pass Ticket Badge */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-pass-container {
+    box-shadow: none !important;
+    border: 2px solid #000000 !important;
+    page-break-inside: avoid;
+  }
 }
