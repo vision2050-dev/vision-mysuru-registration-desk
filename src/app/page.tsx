@@ -163,7 +163,6 @@ export default function RegistrationDeskPage() {
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)]">
       <Navbar
         deskName={deskName}
-        onDeskNameChange={setDeskName}
         onResetData={handleResetData}
         onOpenGeneratePass={() => setIsAddModalOpen(true)}
       />
@@ -179,7 +178,9 @@ export default function RegistrationDeskPage() {
               </h1>
               <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                SDMIMD Campus • Chamundi Hill Road, Mysuru
+                <span>Station: <strong className="text-[var(--text)]">{deskName}</strong> (Locked)</span>
+                <span>•</span>
+                <span>SDMIMD Campus</span>
               </p>
             </div>
           </div>

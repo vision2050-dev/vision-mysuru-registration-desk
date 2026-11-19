@@ -3,30 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { QrCode, Users, Mail, BarChart3, Ticket, Check, LogOut, Radio } from 'lucide-react';
+import { QrCode, Users, Mail, BarChart3, Ticket, LogOut } from 'lucide-react';
 
 interface NavbarProps {
   deskName?: string;
-  onDeskNameChange?: (name: string) => void;
   onResetData?: () => void;
   onOpenGeneratePass?: () => void;
 }
 
 export default function Navbar({
   deskName: propDeskName,
-  onDeskNameChange,
   onResetData,
   onOpenGeneratePass,
 }: NavbarProps) {
   const pathname = usePathname();
-  const [isEditingDesk, setIsEditingDesk] = useState(false);
   const [deskName, setDeskName] = useState(propDeskName || 'Registration Desk');
-  const [currentDesk, setCurrentDesk] = useState(propDeskName || 'Registration Desk');
 
   useEffect(() => {
     if (propDeskName) {
       setDeskName(propDeskName);
-      setCurrentDesk(propDeskName);
       return;
     }
     // Fetch logged-in desk session if not provided
@@ -35,7 +30,6 @@ export default function Navbar({
       .then((data) => {
         if (data?.authenticated && data.user?.deskName) {
           setDeskName(data.user.deskName);
-          setCurrentDesk(data.user.deskName);
         }
       })
       .catch(() => {});
@@ -48,13 +42,6 @@ export default function Navbar({
     { label: 'E-Pass Emails', href: '/emails', icon: Mail },
     { label: 'Analytics', href: '/analytics', icon: BarChart3 },
   ];
-
-  const handleSaveDesk = (e: React.FormEvent) => {
-    e.preventDefault();
-    setDeskName(currentDesk);
-    if (onDeskNameChange) onDeskNameChange(currentDesk);
-    setIsEditingDesk(false);
-  };
 
   const handleLogout = async () => {
     try {
@@ -119,41 +106,19 @@ export default function Navbar({
 
           {/* Right Station Actions */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Active Desk Station Badge */}
-            <div className="relative">
-              {isEditingDesk ? (
-                <form onSubmit={handleSaveDesk} className="flex items-center gap-1">
-                  <input
-                    type="text"
-                    value={currentDesk}
-                    onChange={(e) => setCurrentDesk(e.target.value)}
-                    className="text-xs px-2.5 py-1 rounded-md bg-[var(--surface-2)] border border-[#8f1b1b]/30 text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-[#8f1b1b] w-40"
-                    autoFocus
-                    onBlur={() => setIsEditingDesk(false)}
-                  />
-                  <button
-                    type="submit"
-                    className="p-1 rounded-md bg-[#8f1b1b] text-white text-xs"
-                  >
-                    <Check className="w-3 h-3" />
-                  </button>
-                </form>
-              ) : (
-                <button
-                  onClick={() => setIsEditingDesk(true)}
-                  title="Click to customize desk label (Auto-synced with all desks)"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-xs text-[var(--text)] border border-[var(--border)] transition-colors"
-                >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span className="truncate max-w-[140px] font-medium">{deskName}</span>
-                  <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
-                    Synced
-                  </span>
-                </button>
-              )}
+            {/* Locked Active Desk Station Badge - Read-Only, Cannot Be Renamed */}
+            <div
+              title="Station locked to authenticated login credentials"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--surface-2)] text-xs text-[var(--text)] border border-[var(--border)] select-none cursor-default"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="truncate max-w-[160px] font-semibold text-[var(--text)]">{deskName}</span>
+              <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+                Synced
+              </span>
             </div>
 
             {/* Generate Pass Button */}
@@ -191,25 +156,32 @@ export default function Navbar({
         </div>
 
         {/* Mobile Navigation Segment */}
-        <div className="flex md:hidden items-center justify-between py-1.5 border-t border-[var(--border)] gap-1 overflow-x-auto">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
-                  isActive
-                    ? 'bg-[#8f1b1b] text-white'
-                    : 'text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
-                }`}
-              >
-                <Icon className="w-3 h-3" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+        <div className="flex md:hidden items-center justify-between py-1.5 border-t border-[var(--border)] gap-2 overflow-x-auto">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--surface-2)] text-[10px] font-semibold text-[var(--text)] whitespace-nowrap shrink-0 border border-[var(--border)] select-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span className="truncate max-w-[130px]">{deskName}</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+                    isActive
+                      ? 'bg-[#8f1b1b] text-white'
+                      : 'text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
+                  }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
       </div>

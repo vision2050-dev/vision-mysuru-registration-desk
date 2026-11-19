@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkInAttendee } from '@/lib/store';
 import { extractPassCodeFromScan } from '@/lib/qrcode';
+import { AUTH_CONFIG, getSessionUser } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const rawCode = body.passCode || body.code || '';
-    const deskName = body.deskName || 'Main Registration Desk';
+
+    // Enforce immutable desk identity strictly from the user's authenticated session
+    const token = req.cookies.get(AUTH_CONFIG.cookieName)?.value;
+    const sessionUser = getSessionUser(token);
+    const deskName = sessionUser?.deskName || body.deskName || 'Registration Desk';
 
     if (!rawCode) {
       return NextResponse.json(
