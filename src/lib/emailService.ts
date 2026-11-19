@@ -91,13 +91,9 @@ export function buildInvitationEmailHtml(
                       <div style="font-size:22px;font-weight:800;color:#8f1b1b;letter-spacing:2px;margin-top:2px;">
                         ${attendee.passCode}
                       </div>
-                    </div>
-
-                    <!-- Direct Digital Badge Action Link -->
-                    <div style="margin-top:18px;">
-                      <a href="${passUrl}" target="_blank" style="display:inline-block;background-color:#8f1b1b;color:#ffffff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;">
-                        Open & Download Digital Pass Badge &rarr;
-                      </a>
+                      <div style="font-size:12px;color:#8f1b1b;font-weight:600;margin-top:6px;">
+                        Present this QR code directly from this email at the registration desk
+                      </div>
                     </div>
 
                     <!-- Attendee Details Grid -->
@@ -135,9 +131,9 @@ export function buildInvitationEmailHtml(
               <div style="background-color:#fcfbf9;border-left:4px solid #b07c12;padding:14px 18px;margin:20px 0;border-radius:0 8px 8px 0;font-size:13px;color:#4a3f35;">
                 <strong>Check-In Instructions:</strong>
                 <ul style="margin:8px 0 0 0;padding-left:18px;line-height:1.6;">
-                  <li>Present this scannable QR code on your mobile device or as a printed badge upon arriving at the SDMIMD Auditorium entrance.</li>
-                  <li>Our registration desk staff will scan the pass to confirm your identity and issue your delegate lanyard.</li>
-                  <li>Carry a valid college ID card alongside this e-pass.</li>
+                  <li>Present this email with the QR code above on your mobile phone upon arriving at the SDMIMD Auditorium entrance.</li>
+                  <li>Our registration desk staff will scan the QR code directly from your phone screen to verify your registration and hand over your delegate kit and badge.</li>
+                  <li>Please carry a valid college / institution ID card along with this email.</li>
                 </ul>
               </div>
 

@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAttendees } from '@/lib/store';
 import Papa from 'papaparse';
 
-export async function GET() {
+export async function GET(_req: NextRequest) {
   try {
     const attendees = await getAttendees();
 
