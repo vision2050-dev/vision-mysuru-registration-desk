@@ -37,6 +37,33 @@ export async function generateQRCodeDataURL(
 }
 
 /**
+ * Generates a PNG Buffer for a given pass code or verification payload.
+ * Ideal for email CID inline attachments and direct PNG stream responses.
+ */
+export async function generateQRCodeBuffer(
+  payload: string,
+  options?: QRCodeOptions
+): Promise<Buffer> {
+  const defaultOptions: QRCode.QRCodeToBufferOptions = {
+    errorCorrectionLevel: 'H',
+    width: options?.width || 360,
+    margin: options?.margin ?? 2,
+    color: {
+      dark: options?.color?.dark || '#1f140c',
+      light: options?.color?.light || '#ffffff',
+    },
+  };
+
+  try {
+    const buffer = await QRCode.toBuffer(payload, defaultOptions);
+    return buffer;
+  } catch (err) {
+    console.error('Error generating QR code buffer:', err);
+    throw err;
+  }
+}
+
+/**
  * Parses scanned text (which might be a full URL, JSON, or raw code) into the standardized passCode.
  */
 export function extractPassCodeFromScan(rawScan: string): string {

@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { StudentAttendee } from '@/types';
 import { EVENT_DETAILS } from './constants';
-import { generateQRCodeDataURL } from './qrcode';
+import { generateQRCodeDataURL, generateQRCodeBuffer } from './qrcode';
 
 export interface SendEmailResult {
   success: boolean;
@@ -13,10 +13,12 @@ export interface SendEmailResult {
 
 /**
  * Builds the official Vision Mysuru 2050 branded HTML invitation email.
+ * qrImageSrc can be 'cid:epass-qrcode' for inline email attachment,
+ * or a public URL / data URL for browser preview.
  */
 export function buildInvitationEmailHtml(
   attendee: StudentAttendee,
-  qrDataUrl: string,
+  qrImageSrc: string,
   passUrl: string
 ): string {
   return `
@@ -79,9 +81,9 @@ export function buildInvitationEmailHtml(
 
                 <tr>
                   <td style="padding:24px 20px;text-align:center;">
-                    <!-- QR Code Display -->
+                    <!-- Scannable QR Code Display -->
                     <div style="display:inline-block;padding:12px;background:#ffffff;border:1px solid #ecdcc4;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-                      <img src="${qrDataUrl}" alt="Scannable QR E-Pass" width="180" height="180" style="display:block;margin:0 auto;" />
+                      <img src="${qrImageSrc}" alt="Scannable QR E-Pass" width="180" height="180" style="display:block;margin:0 auto;border:0;" />
                     </div>
 
                     <div style="margin-top:14px;">
@@ -89,6 +91,13 @@ export function buildInvitationEmailHtml(
                       <div style="font-size:22px;font-weight:800;color:#8f1b1b;letter-spacing:2px;margin-top:2px;">
                         ${attendee.passCode}
                       </div>
+                    </div>
+
+                    <!-- Direct Digital Badge Action Link -->
+                    <div style="margin-top:18px;">
+                      <a href="${passUrl}" target="_blank" style="display:inline-block;background-color:#8f1b1b;color:#ffffff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;">
+                        Open & Download Digital Pass Badge &rarr;
+                      </a>
                     </div>
 
                     <!-- Attendee Details Grid -->
@@ -122,31 +131,24 @@ export function buildInvitationEmailHtml(
                 </tr>
               </table>
 
-              <!-- Primary CTA Button -->
-              <div style="text-align:center;margin:28px 0 20px 0;">
-                <a href="${passUrl}" target="_blank" style="display:inline-block;background:linear-gradient(135deg, #8f1b1b 0%, #a12626 100%);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;box-shadow:0 4px 14px rgba(143,27,27,0.3);">
-                  View & Save Digital E-Pass
-                </a>
-              </div>
-
-              <!-- Important Check-in Instructions -->
-              <div style="background-color:#f9f6f0;border-left:4px solid #b07c12;padding:14px 18px;border-radius:0 8px 8px 0;margin:24px 0;font-size:13px;line-height:1.6;color:#4a3f35;">
-                <strong style="color:#1f140c;">Important Registration Desk Instructions:</strong>
-                <ul style="margin:6px 0 0 0;padding-left:18px;">
-                  <li>Present this <strong>QR E-Pass</strong> (on your smartphone or printed) at the entrance registration desk upon arrival.</li>
-                  <li>Please carry a valid College Student ID card for verification.</li>
-                  <li>Breakfast, registration kits, and delegate badges will be provided at the desk from 8:30 AM.</li>
+              <!-- Verification instructions -->
+              <div style="background-color:#fcfbf9;border-left:4px solid #b07c12;padding:14px 18px;margin:20px 0;border-radius:0 8px 8px 0;font-size:13px;color:#4a3f35;">
+                <strong>Check-In Instructions:</strong>
+                <ul style="margin:8px 0 0 0;padding-left:18px;line-height:1.6;">
+                  <li>Present this scannable QR code on your mobile device or as a printed badge upon arriving at the SDMIMD Auditorium entrance.</li>
+                  <li>Our registration desk staff will scan the pass to confirm your identity and issue your delegate lanyard.</li>
+                  <li>Carry a valid college ID card alongside this e-pass.</li>
                 </ul>
               </div>
 
-              <p style="font-size:14px;color:#4a3f35;margin-top:20px;">
-                We look forward to welcoming you to the summit and hearing your visionary ideas for Mysuru!
+              <p style="font-size:13px;color:#6b5b4d;margin:24px 0 0 0;">
+                We look forward to welcoming you for an inspiring day of visioning, dialogue, and change for Mysuru!
               </p>
-
-              <p style="font-size:14px;color:#1f140c;margin:24px 0 0 0;line-height:1.4;">
+              
+              <p style="font-size:14px;color:#1f140c;margin:12px 0 0 0;">
                 Warm regards,<br/>
-                <strong>Vision Mysuru 2050 Secretariat</strong><br/>
-                <span style="font-size:12px;color:#6b5b4d;">${EVENT_DETAILS.organizer}</span>
+                <strong>Registration & Organizing Committee</strong><br/>
+                Vision Mysuru 2050 Summit • SDMIMD
               </p>
             </td>
           </tr>
@@ -181,18 +183,23 @@ export function buildInvitationEmailHtml(
  */
 export async function sendEPassEmail(
   attendee: StudentAttendee,
-  originUrl: string = 'http://localhost:3000'
+  originUrl: string = 'https://vision-mysuru-desk.vercel.app'
 ): Promise<SendEmailResult> {
   const passUrl = `${originUrl}/pass/${attendee.passCode}`;
+  const qrBuffer = await generateQRCodeBuffer(passUrl);
   const qrDataUrl = await generateQRCodeDataURL(passUrl);
 
-  const htmlContent = buildInvitationEmailHtml(attendee, qrDataUrl, passUrl);
+  // For web preview, use data URL so iframes can render without email client context
+  const previewHtml = buildInvitationEmailHtml(attendee, qrDataUrl, passUrl);
 
-  // 1. Check if Resend API key exists (Recommended for Vercel)
+  // 1. Check if Resend API key exists
   const resendApiKey = process.env.RESEND_API_KEY;
   if (resendApiKey) {
     try {
       const fromEmail = process.env.EMAIL_FROM || 'Vision Mysuru 2050 <onboarding@resend.dev>';
+      const hostedQrUrl = `${originUrl}/api/pass/${attendee.passCode}/qr`;
+      const resendHtml = buildInvitationEmailHtml(attendee, hostedQrUrl, passUrl);
+
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -203,7 +210,13 @@ export async function sendEPassEmail(
           from: fromEmail,
           to: [attendee.email],
           subject: `Your Official E-Pass: Vision Mysuru 2050 Summit (${attendee.passCode})`,
-          html: htmlContent,
+          html: resendHtml,
+          attachments: [
+            {
+              filename: `epass-${attendee.passCode}.png`,
+              content: qrBuffer.toString('base64'),
+            },
+          ],
         }),
       });
 
@@ -213,7 +226,7 @@ export async function sendEPassEmail(
           success: true,
           mode: 'resend',
           messageId: data.id,
-          previewHtml: htmlContent,
+          previewHtml,
         };
       } else {
         console.warn('Resend API returned error:', data);
@@ -223,7 +236,7 @@ export async function sendEPassEmail(
     }
   }
 
-  // 2. Check if SMTP credentials exist (User's Gmail or institutional relay)
+  // 2. Check if SMTP credentials exist (Gmail or institutional relay)
   const emailUser = process.env.EMAIL_USER;
   const emailPass = process.env.EMAIL_PASS;
 
@@ -237,18 +250,29 @@ export async function sendEPassEmail(
         },
       });
 
+      // Using CID attachment so Gmail/Apple Mail/Outlook render the QR code inline directly!
+      const emailHtml = buildInvitationEmailHtml(attendee, 'cid:epass-qrcode', passUrl);
+
       const info = await transporter.sendMail({
         from: `"Vision Mysuru 2050 Registration" <${emailUser}>`,
         to: attendee.email,
         subject: `Your Official E-Pass: Vision Mysuru 2050 Summit (${attendee.passCode})`,
-        html: htmlContent,
+        html: emailHtml,
+        attachments: [
+          {
+            filename: `epass-${attendee.passCode}.png`,
+            content: qrBuffer,
+            cid: 'epass-qrcode',
+            contentType: 'image/png',
+          },
+        ],
       });
 
       return {
         success: true,
         mode: 'smtp',
         messageId: info.messageId,
-        previewHtml: htmlContent,
+        previewHtml,
       };
     } catch (err: any) {
       console.error('SMTP sending failed, falling back to simulated mode:', err);
@@ -256,17 +280,17 @@ export async function sendEPassEmail(
         success: false,
         mode: 'smtp',
         error: err.message || 'SMTP delivery failed',
-        previewHtml: htmlContent,
+        previewHtml,
       };
     }
   }
 
-  // 2. Simulated Mode (ideal for demo, local testing, or when API keys aren't added yet)
+  // 3. Simulated Mode (fallback when no credentials are configured)
   console.log(`[Email Simulator] Generated E-Pass Invitation for ${attendee.name} <${attendee.email}>`);
   return {
     success: true,
     mode: 'simulated',
     messageId: `sim_${Date.now()}_${attendee.id}`,
-    previewHtml: htmlContent,
+    previewHtml,
   };
 }

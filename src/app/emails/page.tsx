@@ -25,6 +25,7 @@ export default function EmailsPage() {
   const [selectedAttendeeId, setSelectedAttendeeId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [dispatching, setDispatching] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'sent'>('all');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const fetchAttendees = useCallback(async () => {
@@ -51,7 +52,13 @@ export default function EmailsPage() {
   const pendingAttendees = attendees.filter((a) => a.emailStatus === 'pending');
   const sentAttendees = attendees.filter((a) => a.emailStatus === 'sent');
 
-  const selectedAttendee = attendees.find((a) => a.id === selectedAttendeeId) || attendees[0];
+  const displayedAttendees = attendees.filter((a) => {
+    if (filterStatus === 'pending') return a.emailStatus === 'pending';
+    if (filterStatus === 'sent') return a.emailStatus === 'sent';
+    return true;
+  });
+
+  const selectedAttendee = attendees.find((a) => a.id === selectedAttendeeId) || displayedAttendees[0] || attendees[0];
 
   const handleBulkDispatch = async () => {
     if (pendingAttendees.length === 0) {
@@ -212,12 +219,54 @@ export default function EmailsPage() {
           {/* Left Column: Delegate List (4 cols) */}
           <div className="lg:col-span-4 space-y-3">
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 shadow-2xs">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-subtle)] block mb-2 px-1">
-                Select Delegate to Preview
-              </span>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-subtle)]">
+                  Delegate Directory
+                </span>
+                <span className="text-[11px] font-mono text-[var(--text-subtle)]">
+                  {displayedAttendees.length} shown
+                </span>
+              </div>
+
+              {/* Status Filter Tabs */}
+              <div className="grid grid-cols-3 gap-1 p-1 bg-[var(--surface-2)] rounded-lg mb-2 text-center text-xs">
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('all')}
+                  className={`py-1 rounded-md text-[11px] font-medium transition-colors ${
+                    filterStatus === 'all'
+                      ? 'bg-white text-[var(--text)] font-semibold shadow-2xs'
+                      : 'text-[var(--text-subtle)] hover:text-[var(--text)]'
+                  }`}
+                >
+                  All ({attendees.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('pending')}
+                  className={`py-1 rounded-md text-[11px] font-medium transition-colors ${
+                    filterStatus === 'pending'
+                      ? 'bg-white text-amber-800 font-semibold shadow-2xs'
+                      : 'text-[var(--text-subtle)] hover:text-[var(--text)]'
+                  }`}
+                >
+                  Pending ({pendingAttendees.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterStatus('sent')}
+                  className={`py-1 rounded-md text-[11px] font-medium transition-colors ${
+                    filterStatus === 'sent'
+                      ? 'bg-white text-emerald-800 font-semibold shadow-2xs'
+                      : 'text-[var(--text-subtle)] hover:text-[var(--text)]'
+                  }`}
+                >
+                  Sent ({sentAttendees.length})
+                </button>
+              </div>
 
               <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
-                {attendees.length === 0 && (
+                {attendees.length === 0 ? (
                   <div className="p-6 text-center text-xs text-[var(--text-subtle)] space-y-3">
                     <p>No delegates registered yet.</p>
                     <Link
@@ -228,40 +277,45 @@ export default function EmailsPage() {
                       <span>+ Generate E-Pass</span>
                     </Link>
                   </div>
+                ) : displayedAttendees.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-[var(--text-subtle)]">
+                    No delegates in this category ({filterStatus}).
+                  </div>
+                ) : (
+                  displayedAttendees.map((att) => {
+                    const isSelected = att.id === selectedAttendee?.id;
+                    const isSent = att.emailStatus === 'sent';
+
+                    return (
+                      <button
+                        key={att.id}
+                        onClick={() => setSelectedAttendeeId(att.id)}
+                        className={`w-full text-left p-2.5 rounded-lg border text-xs transition-all flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-[#8f1b1b]/8 border-[#8f1b1b]/30 text-[var(--text)]'
+                            : 'bg-[var(--surface)] border-[var(--border)] hover:bg-[var(--surface-2)] text-[var(--text)]'
+                        }`}
+                      >
+                        <div className="min-w-0 pr-2">
+                          <div className="font-semibold truncate">{att.name}</div>
+                          <div className="text-[11px] text-[var(--text-subtle)] truncate font-mono">{att.passCode}</div>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          <span
+                            className={`text-[10px] font-medium px-2 py-0.5 rounded ${
+                              isSent
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-amber-50 text-amber-700'
+                            }`}
+                          >
+                            {isSent ? 'Sent' : 'Pending'}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })
                 )}
-                {attendees.map((att) => {
-                  const isSelected = att.id === selectedAttendee?.id;
-                  const isSent = att.emailStatus === 'sent';
-
-                  return (
-                    <button
-                      key={att.id}
-                      onClick={() => setSelectedAttendeeId(att.id)}
-                      className={`w-full text-left p-2.5 rounded-lg border text-xs transition-all flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-[#8f1b1b]/8 border-[#8f1b1b]/30 text-[var(--text)]'
-                          : 'bg-[var(--surface)] border-[var(--border)] hover:bg-[var(--surface-2)] text-[var(--text)]'
-                      }`}
-                    >
-                      <div className="min-w-0 pr-2">
-                        <div className="font-semibold truncate">{att.name}</div>
-                        <div className="text-[11px] text-[var(--text-subtle)] truncate font-mono">{att.passCode}</div>
-                      </div>
-
-                      <div className="shrink-0 text-right">
-                        <span
-                          className={`text-[10px] font-medium px-2 py-0.5 rounded ${
-                            isSent
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-amber-50 text-amber-700'
-                          }`}
-                        >
-                          {isSent ? 'Sent' : 'Pending'}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
               </div>
             </div>
           </div>

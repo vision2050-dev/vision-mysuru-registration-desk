@@ -2,114 +2,194 @@ import { StudentAttendee, CheckInLog, EmailDeliveryRecord, DeskStats } from '@/t
 import { INITIAL_DEMO_ATTENDEES } from './constants';
 import fs from 'fs';
 import path from 'path';
+import { put, list } from '@vercel/blob';
 
-// Storage file location for local persistence
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'attendees.json');
-const LOGS_FILE = path.join(DATA_DIR, 'logs.json');
-const EMAILS_FILE = path.join(DATA_DIR, 'emails.json');
+// Local storage paths (with /tmp fallback for serverless)
+const LOCAL_DATA_DIR = path.join(process.cwd(), 'data');
+const TMP_DATA_DIR = '/tmp';
 
-// In-memory cache for fast lookup and serverless fallback
+function getFilePath(filename: string): string {
+  try {
+    if (!fs.existsSync(LOCAL_DATA_DIR)) {
+      fs.mkdirSync(LOCAL_DATA_DIR, { recursive: true });
+    }
+    const testFile = path.join(LOCAL_DATA_DIR, '.write_test');
+    fs.writeFileSync(testFile, 'ok', 'utf-8');
+    fs.unlinkSync(testFile);
+    return path.join(LOCAL_DATA_DIR, filename);
+  } catch {
+    return path.join(TMP_DATA_DIR, filename);
+  }
+}
+
+// In-memory cache for fast lookup
 let attendeesMemory: StudentAttendee[] = [];
 let logsMemory: CheckInLog[] = [];
 let emailsMemory: EmailDeliveryRecord[] = [];
 let isInitialized = false;
+let lastSyncTime = 0;
+const SYNC_CACHE_TTL = 3000; // 3 seconds cache before re-checking Blob in serverless
 
-function ensureDataDir() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-  } catch {
-    // Read-only filesystem (e.g. Vercel serverless), will use in-memory state
+/**
+ * Loads state from Vercel Blob (production) or local JSON files (development/fallback).
+ */
+export async function loadState(forceReload = false): Promise<void> {
+  const now = Date.now();
+  if (isInitialized && !forceReload && now - lastSyncTime < SYNC_CACHE_TTL) {
+    return;
   }
-}
 
-function loadState() {
-  if (isInitialized) return;
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
+  // 1. Try Loading from Vercel Blob Store (Global Cloud Persistence)
+  if (blobToken) {
+    try {
+      const blobList = await list({
+        prefix: 'vision2050/',
+        token: blobToken,
+      });
+
+      const attendeesBlob = blobList.blobs.find((b) => b.pathname === 'vision2050/attendees.json');
+      if (attendeesBlob) {
+        const res = await fetch(`${attendeesBlob.url}?_t=${now}`);
+        if (res.ok) {
+          attendeesMemory = await res.json();
+        }
+      }
+
+      const logsBlob = blobList.blobs.find((b) => b.pathname === 'vision2050/logs.json');
+      if (logsBlob) {
+        const res = await fetch(`${logsBlob.url}?_t=${now}`);
+        if (res.ok) {
+          logsMemory = await res.json();
+        }
+      }
+
+      const emailsBlob = blobList.blobs.find((b) => b.pathname === 'vision2050/emails.json');
+      if (emailsBlob) {
+        const res = await fetch(`${emailsBlob.url}?_t=${now}`);
+        if (res.ok) {
+          emailsMemory = await res.json();
+        }
+      }
+
+      isInitialized = true;
+      lastSyncTime = Date.now();
+      return;
+    } catch (blobErr) {
+      console.warn('Vercel Blob load error, falling back to disk/tmp:', blobErr);
+    }
+  }
+
+  // 2. Fallback to Local/Tmp Filesystem (Offline or Local Dev)
   try {
-    ensureDataDir();
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf-8');
+    const attendeesPath = getFilePath('attendees.json');
+    const logsPath = getFilePath('logs.json');
+    const emailsPath = getFilePath('emails.json');
+
+    if (fs.existsSync(attendeesPath)) {
+      const data = fs.readFileSync(attendeesPath, 'utf-8');
       attendeesMemory = JSON.parse(data);
-    } else {
+    } else if (!isInitialized) {
       attendeesMemory = [...INITIAL_DEMO_ATTENDEES];
-      saveAttendeesToFile();
     }
 
-    if (fs.existsSync(LOGS_FILE)) {
-      const data = fs.readFileSync(LOGS_FILE, 'utf-8');
+    if (fs.existsSync(logsPath)) {
+      const data = fs.readFileSync(logsPath, 'utf-8');
       logsMemory = JSON.parse(data);
-    } else {
-      // Generate initial checkin logs from demo data
-      logsMemory = attendeesMemory
-        .filter((a) => a.status === 'checked_in' && a.checkedInAt)
-        .map((a) => ({
-          id: `log_${a.id}`,
-          attendeeId: a.id,
-          attendeeName: a.name,
-          college: a.college,
-          passCode: a.passCode,
-          timestamp: a.checkedInAt || new Date().toISOString(),
-          deskName: a.checkedInBy || 'Main Registration Desk',
-          type: 'check_in' as const,
-        }));
-      saveLogsToFile();
     }
 
-    if (fs.existsSync(EMAILS_FILE)) {
-      const data = fs.readFileSync(EMAILS_FILE, 'utf-8');
+    if (fs.existsSync(emailsPath)) {
+      const data = fs.readFileSync(emailsPath, 'utf-8');
       emailsMemory = JSON.parse(data);
-    } else {
-      emailsMemory = attendeesMemory
-        .filter((a) => a.emailStatus === 'sent' && a.emailSentAt)
-        .map((a) => ({
-          id: `email_${a.id}`,
-          attendeeId: a.id,
-          attendeeName: a.name,
-          recipientEmail: a.email,
-          passCode: a.passCode,
-          sentAt: a.emailSentAt || new Date().toISOString(),
-          status: 'sent' as const,
-          messageId: `<vm2050_${a.id}@visionmysuru2050.in>`,
-        }));
-      saveEmailsToFile();
     }
-  } catch (err) {
-    console.warn('Filesystem persistence unavailable, running in-memory:', err);
-    if (attendeesMemory.length === 0) {
-      attendeesMemory = [...INITIAL_DEMO_ATTENDEES];
-    }
+  } catch (fsErr) {
+    console.warn('Filesystem read error, using in-memory state:', fsErr);
   }
 
   isInitialized = true;
+  lastSyncTime = Date.now();
 }
 
-function saveAttendeesToFile() {
+/**
+ * Persists attendees to Vercel Blob and local disk.
+ */
+async function saveAttendees(): Promise<void> {
+  lastSyncTime = Date.now();
+
+  // 1. Write to local/tmp disk for immediate local reads
   try {
-    ensureDataDir();
-    fs.writeFileSync(DATA_FILE, JSON.stringify(attendeesMemory, null, 2), 'utf-8');
+    const filePath = getFilePath('attendees.json');
+    fs.writeFileSync(filePath, JSON.stringify(attendeesMemory, null, 2), 'utf-8');
   } catch {
-    // Vercel serverless / readonly
+    // Read-only filesystem
+  }
+
+  // 2. Write to Vercel Blob for persistent global cloud storage
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (blobToken) {
+    try {
+      await put('vision2050/attendees.json', JSON.stringify(attendeesMemory, null, 2), {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        token: blobToken,
+      });
+    } catch (err) {
+      console.error('Failed to sync attendees to Vercel Blob:', err);
+    }
   }
 }
 
-function saveLogsToFile() {
+/**
+ * Persists check-in logs to Vercel Blob and local disk.
+ */
+async function saveLogs(): Promise<void> {
   try {
-    ensureDataDir();
-    fs.writeFileSync(LOGS_FILE, JSON.stringify(logsMemory, null, 2), 'utf-8');
+    const filePath = getFilePath('logs.json');
+    fs.writeFileSync(filePath, JSON.stringify(logsMemory, null, 2), 'utf-8');
   } catch {
-    // Vercel serverless / readonly
+    // Read-only filesystem
+  }
+
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (blobToken) {
+    try {
+      await put('vision2050/logs.json', JSON.stringify(logsMemory, null, 2), {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        token: blobToken,
+      });
+    } catch (err) {
+      console.error('Failed to sync logs to Vercel Blob:', err);
+    }
   }
 }
 
-function saveEmailsToFile() {
+/**
+ * Persists email logs to Vercel Blob and local disk.
+ */
+async function saveEmails(): Promise<void> {
   try {
-    ensureDataDir();
-    fs.writeFileSync(EMAILS_FILE, JSON.stringify(emailsMemory, null, 2), 'utf-8');
+    const filePath = getFilePath('emails.json');
+    fs.writeFileSync(filePath, JSON.stringify(emailsMemory, null, 2), 'utf-8');
   } catch {
-    // Vercel serverless / readonly
+    // Read-only filesystem
+  }
+
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (blobToken) {
+    try {
+      await put('vision2050/emails.json', JSON.stringify(emailsMemory, null, 2), {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        token: blobToken,
+      });
+    } catch (err) {
+      console.error('Failed to sync emails to Vercel Blob:', err);
+    }
   }
 }
 
@@ -120,17 +200,17 @@ export function generatePassCode(): string {
 }
 
 export async function getAttendees(): Promise<StudentAttendee[]> {
-  loadState();
+  await loadState();
   return [...attendeesMemory];
 }
 
 export async function getAttendeeById(id: string): Promise<StudentAttendee | null> {
-  loadState();
+  await loadState();
   return attendeesMemory.find((a) => a.id === id) || null;
 }
 
 export async function getAttendeeByPassCode(passCode: string): Promise<StudentAttendee | null> {
-  loadState();
+  await loadState();
   const cleaned = passCode.trim().toUpperCase();
   return (
     attendeesMemory.find(
@@ -145,7 +225,7 @@ export async function getAttendeeByPassCode(passCode: string): Promise<StudentAt
 export async function createAttendee(
   data: Omit<StudentAttendee, 'id' | 'passCode' | 'status' | 'checkedInAt' | 'checkedInBy' | 'emailStatus' | 'emailSentAt' | 'createdAt'>
 ): Promise<StudentAttendee> {
-  loadState();
+  await loadState();
   const newAttendee: StudentAttendee = {
     ...data,
     id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -159,14 +239,14 @@ export async function createAttendee(
   };
 
   attendeesMemory.unshift(newAttendee);
-  saveAttendeesToFile();
+  await saveAttendees();
   return newAttendee;
 }
 
 export async function bulkCreateAttendees(
   dataList: Array<Partial<StudentAttendee> & { name: string; email: string }>
 ): Promise<{ added: number; skipped: number; attendees: StudentAttendee[] }> {
-  loadState();
+  await loadState();
   const created: StudentAttendee[] = [];
   let skipped = 0;
 
@@ -206,7 +286,7 @@ export async function bulkCreateAttendees(
     created.push(newAttendee);
   }
 
-  saveAttendeesToFile();
+  await saveAttendees();
   return { added: created.length, skipped, attendees: created };
 }
 
@@ -225,7 +305,7 @@ export async function checkInAttendee(
   passCode: string,
   deskName: string = 'Registration Desk 1'
 ): Promise<CheckInResult> {
-  loadState();
+  await loadState();
   const attendee = await getAttendeeByPassCode(passCode);
 
   if (!attendee) {
@@ -267,8 +347,8 @@ export async function checkInAttendee(
   };
 
   logsMemory.unshift(log);
-  saveAttendeesToFile();
-  saveLogsToFile();
+  await saveAttendees();
+  await saveLogs();
 
   return {
     success: true,
@@ -279,7 +359,7 @@ export async function checkInAttendee(
 }
 
 export async function undoCheckIn(passCode: string): Promise<CheckInResult> {
-  loadState();
+  await loadState();
   const attendee = await getAttendeeByPassCode(passCode);
 
   if (!attendee) {
@@ -306,8 +386,8 @@ export async function undoCheckIn(passCode: string): Promise<CheckInResult> {
   };
 
   logsMemory.unshift(log);
-  saveAttendeesToFile();
-  saveLogsToFile();
+  await saveAttendees();
+  await saveLogs();
 
   return {
     success: true,
@@ -321,7 +401,7 @@ export async function recordEmailSent(
   attendeeId: string,
   record: Omit<EmailDeliveryRecord, 'id' | 'attendeeId'>
 ): Promise<void> {
-  loadState();
+  await loadState();
   const attendee = attendeesMemory.find((a) => a.id === attendeeId);
   if (attendee) {
     attendee.emailStatus = record.status === 'failed' ? 'failed' : 'sent';
@@ -334,21 +414,21 @@ export async function recordEmailSent(
     attendeeId,
   });
 
-  saveAttendeesToFile();
-  saveEmailsToFile();
+  await saveAttendees();
+  await saveEmails();
 }
 
 export async function getEmailLogs(): Promise<EmailDeliveryRecord[]> {
-  loadState();
+  await loadState();
   return [...emailsMemory];
 }
 
 export async function deleteAttendee(id: string): Promise<boolean> {
-  loadState();
+  await loadState();
   const index = attendeesMemory.findIndex((a) => a.id === id);
   if (index !== -1) {
     attendeesMemory.splice(index, 1);
-    saveAttendeesToFile();
+    await saveAttendees();
     return true;
   }
   return false;
@@ -369,13 +449,13 @@ export async function resetToDemoData(): Promise<void> {
       type: 'check_in' as const,
     }));
   emailsMemory = [];
-  saveAttendeesToFile();
-  saveLogsToFile();
-  saveEmailsToFile();
+  await saveAttendees();
+  await saveLogs();
+  await saveEmails();
 }
 
 export async function getDeskStats(): Promise<DeskStats> {
-  loadState();
+  await loadState();
   const totalRegistered = attendeesMemory.length;
   const totalCheckedIn = attendeesMemory.filter((a) => a.status === 'checked_in').length;
   const totalPending = totalRegistered - totalCheckedIn;
@@ -383,23 +463,19 @@ export async function getDeskStats(): Promise<DeskStats> {
   const totalEmailsSent = attendeesMemory.filter((a) => a.emailStatus === 'sent').length;
   const totalEmailsPending = attendeesMemory.filter((a) => a.emailStatus === 'pending').length;
 
-  const collegeCountMap: Record<string, { total: number; checkedIn: number }> = {};
-  for (const att of attendeesMemory) {
-    const col = att.college || 'Other';
-    if (!collegeCountMap[col]) {
-      collegeCountMap[col] = { total: 0, checkedIn: 0 };
-    }
-    collegeCountMap[col].total++;
-    if (att.status === 'checked_in') {
-      collegeCountMap[col].checkedIn++;
-    }
+  const collegeMap: Record<string, { total: number; checkedIn: number }> = {};
+  for (const a of attendeesMemory) {
+    const col = a.college || 'Other';
+    if (!collegeMap[col]) collegeMap[col] = { total: 0, checkedIn: 0 };
+    collegeMap[col].total++;
+    if (a.status === 'checked_in') collegeMap[col].checkedIn++;
   }
 
-  const collegeBreakdown = Object.entries(collegeCountMap).map(([college, stats]) => ({
+  const collegeBreakdown = Object.entries(collegeMap).map(([college, data]) => ({
     college,
-    total: stats.total,
-    checkedIn: stats.checkedIn,
-  })).sort((a, b) => b.total - a.total);
+    total: data.total,
+    checkedIn: data.checkedIn,
+  }));
 
   return {
     totalRegistered,
