@@ -10,7 +10,7 @@ export const EVENT_DETAILS: EventInfo = {
   venue: 'SDMIMD Main Auditorium Complex',
   venueDetails: 'Site No. 1, Chamundi Hill Road, Siddartha Nagar, Mysuru, Karnataka 570011',
   organizer: 'SDMIMD in partnership with CII, Young Indians & Mysuru Grahakara Parishat (MGP)',
-  contactEmail: 'visionmysuru2050@gmail.com',
+  contactEmail: 'vision2050@sdmimd.ac.in',
   contactPhone: '+91 821 242 9722',
   website: 'https://visionmysuru2050.in',
 };
