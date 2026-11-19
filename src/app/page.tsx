@@ -39,6 +39,24 @@ export default function RegistrationDeskPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
+  // Load authenticated desk station on mount
+  useEffect(() => {
+    async function loadDeskSession() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user?.deskName) {
+            setDeskName(data.user.deskName);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load desk session:', err);
+      }
+    }
+    loadDeskSession();
+  }, []);
+
   // Fetch desk stats and logs
   const fetchStats = useCallback(async () => {
     try {
@@ -55,7 +73,8 @@ export default function RegistrationDeskPage() {
 
   useEffect(() => {
     fetchStats();
-    const interval = setInterval(fetchStats, 6000);
+    // 3.5s auto-sync interval for multi-desk live consistency
+    const interval = setInterval(fetchStats, 3500);
     return () => clearInterval(interval);
   }, [fetchStats]);
 

@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isValid = validateCredentials(email, password);
+    const user = validateCredentials(email, password);
 
-    if (!isValid) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
@@ -25,13 +25,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = createSessionToken(email);
+    const token = createSessionToken(user);
 
     const response = NextResponse.json({
       success: true,
       user: {
-        email: AUTH_CONFIG.email,
-        role: 'Staff Coordinator',
+        email: user.email,
+        deskName: user.deskName,
+        location: user.location,
+        role: user.role,
       },
     });
 

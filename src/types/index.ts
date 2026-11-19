@@ -63,5 +63,6 @@ export interface DeskStats {
   totalEmailsSent: number;
   totalEmailsPending: number;
   collegeBreakdown: { college: string; total: number; checkedIn: number }[];
+  deskBreakdown?: { deskName: string; checkedIn: number }[];
   recentLogs: CheckInLog[];
 }

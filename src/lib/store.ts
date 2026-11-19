@@ -305,7 +305,8 @@ export async function checkInAttendee(
   passCode: string,
   deskName: string = 'Registration Desk 1'
 ): Promise<CheckInResult> {
-  await loadState();
+  // Always force reload from Blob in serverless to ensure instantaneous cross-desk synchronization
+  await loadState(true);
   const attendee = await getAttendeeByPassCode(passCode);
 
   if (!attendee) {
@@ -359,7 +360,7 @@ export async function checkInAttendee(
 }
 
 export async function undoCheckIn(passCode: string): Promise<CheckInResult> {
-  await loadState();
+  await loadState(true);
   const attendee = await getAttendeeByPassCode(passCode);
 
   if (!attendee) {
@@ -477,6 +478,20 @@ export async function getDeskStats(): Promise<DeskStats> {
     checkedIn: data.checkedIn,
   }));
 
+  // Desk breakdown: compute check-ins grouped by registered desk station
+  const deskMap: Record<string, number> = {};
+  for (const a of attendeesMemory) {
+    if (a.status === 'checked_in') {
+      const desk = a.checkedInBy || 'Unassigned Station';
+      deskMap[desk] = (deskMap[desk] || 0) + 1;
+    }
+  }
+
+  const deskBreakdown = Object.entries(deskMap).map(([deskName, checkedIn]) => ({
+    deskName,
+    checkedIn,
+  })).sort((a, b) => b.checkedIn - a.checkedIn);
+
   return {
     totalRegistered,
     totalCheckedIn,
@@ -485,6 +500,7 @@ export async function getDeskStats(): Promise<DeskStats> {
     totalEmailsSent,
     totalEmailsPending,
     collegeBreakdown,
+    deskBreakdown,
     recentLogs: logsMemory.slice(0, 20),
   };
 }

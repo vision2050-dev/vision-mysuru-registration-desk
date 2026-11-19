@@ -12,6 +12,9 @@ import {
   Building2,
   PieChart,
   RefreshCw,
+  Radio,
+  MapPin,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
@@ -36,7 +39,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 8000);
+    const interval = setInterval(fetchData, 4000);
     return () => clearInterval(interval);
   }, [fetchData]);
 
@@ -61,7 +64,7 @@ export default function AnalyticsPage() {
               Attendance Analytics & Reports
             </h1>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Real-time attendance rates, institutional distribution, and check-in velocity.
+              Live synchronized admission statistics across all 5 campus registration desks.
             </p>
           </div>
 
@@ -112,8 +115,61 @@ export default function AnalyticsPage() {
 
           <div className="flex items-center justify-between text-[11px] text-[var(--text-subtle)] mt-2">
             <span>SDMIMD Campus • Reporting: 08:30 AM</span>
-            <span>Capacity: Auditorium Complex</span>
+            <span>Live Cloud Synchronization Active</span>
           </div>
+        </div>
+
+        {/* Registration Desks Live Distribution */}
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-2xs">
+          <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[var(--border)]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+              <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+              Check-In Volume by Desk Station
+            </h3>
+            <span className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              5 Desks Synced
+            </span>
+          </div>
+
+          {stats?.deskBreakdown && stats.deskBreakdown.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {stats.deskBreakdown.map((item, idx) => {
+                const totalChecked = stats.totalCheckedIn || 1;
+                const deskPercent = Math.round((item.checkedIn / totalChecked) * 100);
+                return (
+                  <div key={idx} className="p-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3 h-3 text-[#8f1b1b] shrink-0" />
+                        <span className="text-xs font-semibold text-[var(--text)] truncate max-w-[170px]">
+                          {item.deskName}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-[var(--text)]">
+                        {item.checkedIn}
+                      </span>
+                    </div>
+
+                    <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#8f1b1b] rounded-full"
+                        style={{ width: `${deskPercent}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] text-[var(--text-subtle)]">
+                      <span>Share of admissions</span>
+                      <span className="font-semibold text-[var(--text-muted)]">{deskPercent}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-6 text-center text-xs text-[var(--text-subtle)]">
+              No desk check-ins recorded yet today. Check-ins from any of the 5 stations will appear here in real time.
+            </div>
+          )}
         </div>
 
         {/* Breakdown Grid */}
